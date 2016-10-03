@@ -38,6 +38,9 @@
 #include <openssl/pem.h>
 #include <openssl/err.h>
 
+#include "../src/graphics.h"
+#include <psp2/io/stat.h>
+
 #define UNIQUE_FILE_NAME "uniqueid.dat"
 #define P12_FILE_NAME "client.p12"
 
@@ -57,9 +60,6 @@ static EVP_PKEY *privateKey;
 
 const char* gs_error;
 
-#ifdef __vita__
-#include "../src/graphics.h"
-#endif
 
 static int mkdirtree(const char* directory) {
   char buffer[1024];
@@ -80,7 +80,7 @@ static int mkdirtree(const char* directory) {
 
     // Create the directory if it doesn't exist already
     int ret = sceIoMkdir(buffer, 0777);
-    if (ret < 0 && ret != 0x8001000d && ret != 0x80010011) {
+    if (ret < 0) { // ret != 0x8001000d && ret != 0x80010011
         return -1;
     }
 
@@ -252,7 +252,7 @@ static int load_server_status(PSERVER_DATA server) {
     }
     ret = GS_OK;
 
-    cleanup:
+cleanup:
     if (data != NULL)
       http_free_data(data);
 

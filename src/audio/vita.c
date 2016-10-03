@@ -26,6 +26,9 @@
 #define FRAME_SIZE 240
 #define VITA_SAMPLES 960
 #define BUFFER_SIZE (2 * VITA_SAMPLES)
+
+extern int sceClibPrintf(const char *fmt, ...);
+
 static int decode_offset;
 static int port;
 

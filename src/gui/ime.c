@@ -126,7 +126,7 @@ int ime_dialog(char *text, char *title, char *def) {
         oslOskGetText(userText);
       }
 
-      strcpy(text, userText);
+      strncpy(text, userText, 512);
       break;
     }
 

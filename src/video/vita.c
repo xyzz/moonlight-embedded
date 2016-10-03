@@ -25,6 +25,7 @@
 #include <stdbool.h>
 #include <psp2/kernel/sysmem.h>
 #include <psp2/display.h>
+#include "videodec.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -45,110 +46,12 @@ enum {
 int backbuffer;
 void *framebuffer[2];
 
-// https://gitlab.slkdev.net/RPCS3/rpcs3/blob/0e5c54709d7fa2a76b8944ca999b5b28a722be31/rpcs3/Emu/ARMv7/Modules/sceVideodec.h
-struct SceVideodecQueryInitInfoHwAvcdec {
-  uint32_t size;
-  uint32_t horizontal;
-  uint32_t vertical;
-  uint32_t numOfRefFrames;
-  uint32_t numOfStreams;
-};
-struct SceAvcdecQueryDecoderInfo {
-  uint32_t horizontal;
-  uint32_t vertical;
-  uint32_t numOfRefFrames;
-};
-struct SceAvcdecDecoderInfo {
-  uint32_t frameMemSize;
-};
-struct SceAvcdecBuf {
-  void *pBuf;
-  uint32_t size;
-};
-struct SceAvcdecCtrl {
-  uint32_t handle;
-  struct SceAvcdecBuf frameBuf;
-};
-struct SceVideodecTimeStamp {
-  uint32_t upper;
-  uint32_t lower;
-};
-struct SceAvcdecAu {
-  struct SceVideodecTimeStamp pts;
-  struct SceVideodecTimeStamp dts;
-  struct SceAvcdecBuf es;
-};
-struct SceAvcdecFrameOptionRGBA
-{
-  uint8_t alpha;
-  uint8_t cscCoefficient;
-  uint8_t reserved[14];
-};
-union SceAvcdecFrameOption
-{
-  uint8_t reserved[16];
-  struct SceAvcdecFrameOptionRGBA rgba;
-};
-struct SceAvcdecFrame {
-  uint32_t pixelType;
-  uint32_t framePitch;
-  uint32_t frameWidth;
-  uint32_t frameHeight;
-
-  uint32_t horizontalSize;
-  uint32_t verticalSize;
-
-  uint32_t frameCropLeftOffset;
-  uint32_t frameCropRightOffset;
-  uint32_t frameCropTopOffset;
-  uint32_t frameCropBottomOffset;
-
-  union SceAvcdecFrameOption opt;
-
-  void *pPicture[2];
-};
-struct SceAvcdecInfo
-{
-  uint32_t numUnitsInTick;
-  uint32_t timeScale;
-  uint8_t fixedFrameRateFlag;
-
-  uint8_t aspectRatioIdc;
-  uint16_t sarWidth;
-  uint16_t sarHeight;
-
-  uint8_t colourPrimaries;
-  uint8_t transferCharacteristics;
-  uint8_t matrixCoefficients;
-
-  uint8_t videoFullRangeFlag;
-
-  uint8_t padding[3];
-
-  struct SceVideodecTimeStamp pts;
-};
-struct SceAvcdecPicture {
-  uint32_t size;
-  struct SceAvcdecFrame frame;
-  struct SceAvcdecInfo info;
-};
-struct SceAvcdecArrayPicture {
-  uint32_t numOfOutput;
-  uint32_t numOfElm;
-  struct SceAvcdecPicture **pPicture;
-};
-
-
-struct SceAvcdecCtrl decoder = {0};
-
-static FILE* fd;
-static const char* fileName = "ux0:data/moonlight/fake.h264";
+SceAvcdecCtrl decoder = {0};
 
 static void vita_setup(int videoFormat, int width, int height, int redrawRate, void* context, int drFlags) {
   gs_sps_init();
 
   printf("vita video setup\n");
-  fd = fopen(fileName, "w");
 
   SceKernelAllocMemBlockOpt opt = { 0 };
   opt.size = sizeof(opt);
@@ -158,7 +61,7 @@ static void vita_setup(int videoFormat, int width, int height, int redrawRate, v
   printf("displayblock: 0x%08x\n", displayblock);
   void *base;
   sceKernelGetMemBlockBase(displayblock, &base);
-  printf("base: 0x%08x\n", base);
+  printf("base: 0x%08x\n", (uint32_t)base);
 
   framebuffer[0] = base;
   framebuffer[1] = (char*)base + FRAMEBUFFER_SIZE;
@@ -180,39 +83,39 @@ static void vita_setup(int videoFormat, int width, int height, int redrawRate, v
     exit(1);
   }
 
-  struct SceVideodecQueryInitInfoHwAvcdec init = {0};
+  SceVideodecQueryInitInfoHwAvcdec init = {0};
+
   init.size = sizeof(init);
   init.horizontal = width;
   init.vertical = height;
   init.numOfRefFrames = 5;
   init.numOfStreams = 1;
 
-  struct SceAvcdecQueryDecoderInfo decoder_info = {0};
+  SceAvcdecQueryDecoderInfo decoder_info = {0};
   decoder_info.horizontal = init.horizontal;
   decoder_info.vertical = init.vertical;
   decoder_info.numOfRefFrames = init.numOfRefFrames;
 
-  struct SceAvcdecDecoderInfo decoder_info_out = {0};
+  SceAvcdecDecoderInfo decoder_info_out = {0};
 
-  ret = sceVideodecInitLibrary(0x1001, &init);
+  ret = sceVideodecInitLibrary(SCE_VIDEODEC_TYPE_HW_AVCDEC, &init);
   printf("sceVideodecInitLibrary 0x%x\n", ret);
-  ret = sceAvcdecQueryDecoderMemSize(0x1001, &decoder_info, &decoder_info_out);
+  ret = sceAvcdecQueryDecoderMemSize(SCE_VIDEODEC_TYPE_HW_AVCDEC, &decoder_info, &decoder_info_out);
   printf("sceAvcdecQueryDecoderMemSize 0x%x size 0x%x\n", ret, decoder_info_out.frameMemSize);
 
   size_t sz = (decoder_info_out.frameMemSize + 0xFFFFF) & ~0xFFFFF;
   decoder.frameBuf.size = sz;
-  printf("allocating size 0x%x\n", sz);
+  printf("allocating size 0x%x\n", (uint32_t)sz);
   int decoderblock = sceKernelAllocMemBlock("decoder", SCE_KERNEL_MEMBLOCK_TYPE_USER_MAIN_PHYCONT_NC_RW, sz, NULL);
   printf("decoderblock: 0x%08x\n", decoderblock);
   sceKernelGetMemBlockBase(decoderblock, &decoder.frameBuf.pBuf);
-  printf("base: 0x%08x\n", decoder.frameBuf.pBuf);
+  printf("base: 0x%08x\n", (uint32_t)decoder.frameBuf.pBuf);
 
-  ret = sceAvcdecCreateDecoder(0x1001, &decoder, &decoder_info);
+  ret = sceAvcdecCreateDecoder(SCE_VIDEODEC_TYPE_HW_AVCDEC, &decoder, &decoder_info);
   printf("sceAvcdecCreateDecoder 0x%x\n", ret);
 }
 
 static void vita_cleanup() {
-  fclose(fd);
 
   free(ffmpeg_buffer);
   #warning TODO cleanup
@@ -222,18 +125,10 @@ static unsigned numframes;
 static bool active_video_thread = true;
 
 static int vita_submit_decode_unit(PDECODE_UNIT decodeUnit) {
-  #if 0
-  PLENTRY entry = decodeUnit->bufferList;
-  while (entry != NULL) {
-    fwrite(entry->data, entry->length, 1, fd);
-    entry = entry->next;
-  }
-  #endif
-
-  struct SceAvcdecAu au = {0};
-  struct SceAvcdecArrayPicture array_picture = {0};
-  struct SceAvcdecPicture picture = {0};
-  struct SceAvcdecPicture *pictures = { &picture };
+  SceAvcdecAu au = {0};
+  SceAvcdecArrayPicture array_picture = {0};
+  SceAvcdecPicture picture = {0};
+  SceAvcdecPicture *pictures = { &picture };
   array_picture.numOfElm = 1;
   array_picture.pPicture = &pictures;
 
@@ -243,7 +138,7 @@ static int vita_submit_decode_unit(PDECODE_UNIT decodeUnit) {
   picture.frame.frameWidth = SCREEN_WIDTH;
   picture.frame.frameHeight = SCREEN_HEIGHT;
   picture.frame.pPicture[0] = framebuffer[backbuffer];
-  
+
   if (decodeUnit->fullLength < DECODER_BUFFER_SIZE) {
     PLENTRY entry = gs_sps_fix(&decodeUnit->bufferList, 0);
     int length = 0;

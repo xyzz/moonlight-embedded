@@ -17,7 +17,6 @@
  * along with Moonlight; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "input/evdev.h"
 #include "config.h"
 #include "audio.h"
 
@@ -156,14 +155,19 @@ static void parse_argument(int c, char* value, PCONFIGURATION config) {
       perror("Too many inputs specified");
       exit(-1);
     }
-    config->inputs[config->inputsCount].path = value;
+    if (config->inputs[config->inputsCount].path != NULL) {
+      free(config->inputs[config->inputsCount].path);
+    }
+    config->inputs[config->inputsCount].path = malloc(sizeof(char) * strlen(value));
+    strcpy(config->inputs[config->inputsCount].path, value);
     config->inputs[config->inputsCount].mapping = config->mapping;
     config->inputsCount++;
     inputAdded = true;
     mapped = true;
     break;
   case 'k':
-    config->mapping = value;
+    config->mapping = malloc(sizeof(char) * strlen(value));
+    strcpy(config->mapping, value);
     if (config->mapping == NULL) {
       fprintf(stderr, "Unable to open custom mapping file: %s\n", value);
       exit(-1);
@@ -174,7 +178,11 @@ static void parse_argument(int c, char* value, PCONFIGURATION config) {
     config->sops = false;
     break;
   case 'm':
-    audio_device = value;
+    if (audio_device != NULL) {
+      free((char*)audio_device);
+    }
+    audio_device = malloc(sizeof(char) * strlen(value) + 1);
+    strcpy((char*)audio_device, value);
     break;
   case 'n':
     config->localaudio = true;
@@ -185,10 +193,18 @@ static void parse_argument(int c, char* value, PCONFIGURATION config) {
 
     break;
   case 'p':
-    config->platform = value;
+    if (config->platform != NULL) {
+      free(config->platform);
+    }
+    config->platform = malloc(sizeof(char) * strlen(value));
+    strcpy(config->platform, value);
     break;
   case 'q':
-    config->config_file = value;
+    if (config->config_file != NULL) {
+      free(config->config_file);
+    }
+    config->config_file = malloc(sizeof(char) * strlen(value));
+    strcpy(config->config_file, value);
     break;
   case 'r':
     strcpy(config->key_dir, value);
@@ -215,11 +231,13 @@ static void parse_argument(int c, char* value, PCONFIGURATION config) {
     config->unsupported_version = true;
     break;
   case 1:
-    if (config->action == NULL)
-      config->action = value;
-    else if (config->address == NULL)
-      config->address = value;
-    else {
+    if (config->action == NULL) {
+      config->action = malloc(sizeof(char) * strlen(value));
+      strcpy(config->action, value);
+    } else if (config->address == NULL) {
+      config->address = malloc(sizeof(char) * strlen(value));
+      strcpy(config->address, value);
+    } else {
       perror("Too many options");
       exit(-1);
     }
@@ -234,15 +252,16 @@ bool config_file_parse(char* filename, PCONFIGURATION config) {
   }
 
   char *line = NULL;
+  char value[256];
   size_t len = 0;
 
   while (__getline(&line, &len, fd) != -1) {
     char key[256], scan_value[256];
-    if (sscanf(line, "%s = %s\n", &key, &scan_value) == 2) {
-      char *value = malloc(sizeof(char) * strlen(scan_value));
+    memset(value, 0, 256);
+    if (sscanf(line, "%256s = %256s\n", &key, &scan_value) == 2) {
       strcpy(value, scan_value);
       if (strcmp(key, "address") == 0) {
-        config->address = malloc(sizeof(char)*strlen(value));
+        config->address = malloc(sizeof(char) * strlen(value));
         strcpy(config->address, value);
       } else if (strcmp(key, "sops") == 0) {
         config->sops = strcmp("true", value) == 0;
