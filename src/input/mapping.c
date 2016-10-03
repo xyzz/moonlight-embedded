@@ -37,7 +37,7 @@ void mapping_load(char* fileName, struct mapping* map) {
   size_t len = 0;
   while (__getline(&line, &len, fd) != -1) {
     char key[256], value[256];
-    if (sscanf(line, "%s = %s", &key, &value) == 2) {
+    if (sscanf(line, "%256s = %256s", &key, &value) == 2) {
       long int_value = strtol(value, NULL, 16);
       if (strcmp("abs_x", key) == 0)
         map->abs_x = int_value;

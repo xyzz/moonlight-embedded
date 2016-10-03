@@ -30,7 +30,6 @@
 typedef bool(*ImxInit)();
 
 enum platform platform_check(char* name) {
-  bool std = strcmp(name, "default") == 0;
   if (strcmp(name, "vita") == 0)
     return VITA;
   return 0;
@@ -50,10 +49,6 @@ bool platform_supports_hevc(enum platform system) {
     return true;
   }
   return false;
-}
-
-int shutdown(int s, int how) {
-  return sceNetShutdown(s, how);
 }
 
 int chmod(const char *path, mode_t mode) {

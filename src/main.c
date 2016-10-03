@@ -28,6 +28,7 @@
 #include "platform.h"
 
 #include "input/vita.h"
+#include "power/vita.h"
 
 #include <Limelight.h>
 
@@ -42,7 +43,11 @@
 #include <ctype.h>
 
 #include <psp2/net/net.h>
+#include <psp2/net/netctl.h>
+#include <psp2/io/stat.h>
 #include <psp2/sysmodule.h>
+#include <psp2/kernel/rng.h>
+#include <psp2/kernel/threadmgr.h>
 
 #include <psp2/ctrl.h>
 #include <psp2/touch.h>
@@ -97,17 +102,16 @@ static void vita_init() {
 
   printf("Moonlight Embedded %d.%d.%d (%s)\n", VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, COMPILE_OPTIONS);
 
-  int ret = 0;
-
-  ret = sceSysmoduleLoadModule(SCE_SYSMODULE_NET);
+  sceSysmoduleLoadModule(SCE_SYSMODULE_NET);
 
   size_t net_mem_sz = 100 * 1024;
   SceNetInitParam net_param = {0};
   net_param.memory = calloc(net_mem_sz, 1);
   net_param.size = net_mem_sz;
-  ret = sceNetInit(&net_param);
 
-  ret = sceNetCtlInit();
+  sceNetInit(&net_param);
+  sceNetCtlInit();
+
   // TODO(xyz): cURL breaks when socket FD is too big, very hacky workaround below!
   int s = sceNetSocket("", SCE_NET_AF_INET, SCE_NET_SOCK_STREAM, 0);
   sceNetSocketClose(s);

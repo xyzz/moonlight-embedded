@@ -29,6 +29,7 @@
 
 #include "../graphics.h"
 #include "../config.h"
+#include "../connection.h"
 #include "vita.h"
 #include "mapping.h"
 
@@ -37,6 +38,7 @@
 #include <psp2/net/net.h>
 #include <psp2/sysmodule.h>
 #include <psp2/kernel/sysmem.h>
+#include <psp2/kernel/threadmgr.h>
 
 #include <psp2/ctrl.h>
 #include <psp2/touch.h>

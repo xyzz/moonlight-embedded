@@ -57,11 +57,11 @@ void connection_connection_terminated() {
   connection_status = LI_READY;
 }
 
-void connection_display_message(char *msg) {
+void connection_display_message(const char *msg) {
   printf("%s\n", msg);
 }
 
-void connection_display_transient_message(char *msg) {
+void connection_display_transient_message(const char *msg) {
   printf("%s\n", msg);
 }
 

@@ -33,6 +33,7 @@ extern long connection_failed_stage_code;
 
 void connection_terminate();
 void connection_reset();
+void connection_resume();
 
 bool connection_is_ready();
 int connection_get_status();

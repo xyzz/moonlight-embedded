@@ -13,6 +13,7 @@
 #include <psp2/net/net.h>
 #include <psp2/sysmodule.h>
 
+#include <psp2/display.h>
 #include <psp2/ctrl.h>
 #include <psp2/touch.h>
 #include <psp2/rtc.h>
