@@ -65,3 +65,11 @@ mkdir build && cd build
 cmake ..
 make
 ```
+
+# Assets
+
+- Icon - [moonlight-stream][moonlight] project logo
+- Livearea background - [Spotlight Beam][spotlight] CCL 3.0 BY-NC
+
+[moonlight]: https://github.com/moonlight-stream
+[spotlight]: http://visualogist.deviantart.com/art/Spotlight-Beam-150282562
