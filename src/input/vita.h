@@ -41,6 +41,8 @@ enum {
   ANALOG_RIGHTY         = 0x0800,
   ANALOG_LEFT_TRIGGER   = 0x1000,
   ANALOG_RIGHT_TRIGGER  = 0x2000,
+  ANALOG_LEFT_BUTTON    = 0x4000,
+  ANALOG_RIGHT_BUTTON   = 0x8000,
 } InputSectionValue;
 
 #define INPUT_TYPE_MASK         0xfff00000

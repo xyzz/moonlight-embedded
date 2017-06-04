@@ -238,8 +238,20 @@ inline uint32_t is_pressed(uint32_t defined) {
   switch(dev_type) {
     case INPUT_TYPE_GAMEPAD:
       return pad.buttons & dev_val;
-    case INPUT_TYPE_TOUCHSCREEN:
-      return touch.button & dev_val;
+  }
+  if (dev_type & INPUT_TYPE_TOUCHSCREEN) {
+    uint32_t ret = touch.button & dev_val;
+    if (ret) {
+      return ret;
+    }
+  }
+  if (dev_type & INPUT_TYPE_ANALOG) {
+    if (dev_val & ANALOG_LEFT_BUTTON) {
+      return pad.buttons & SCE_CTRL_L3;
+    }
+    if (dev_val & ANALOG_RIGHT_BUTTON) {
+      return pad.buttons & SCE_CTRL_R3;
+    }
   }
   return 0;
 }
@@ -251,8 +263,21 @@ inline uint32_t is_old_pressed(uint32_t defined) {
   switch(dev_type) {
     case INPUT_TYPE_GAMEPAD:
       return pad_old.buttons & dev_val;
-    case INPUT_TYPE_TOUCHSCREEN:
-      return touch_old.button & dev_val;
+  }
+
+  if (dev_type & INPUT_TYPE_TOUCHSCREEN) {
+    uint32_t ret = touch_old.button & dev_val;
+    if (ret) {
+      return ret;
+    }
+  }
+  if (dev_type & INPUT_TYPE_ANALOG) {
+    if (dev_val & ANALOG_LEFT_BUTTON) {
+      return pad_old.buttons & SCE_CTRL_L3;
+    }
+    if (dev_val & ANALOG_RIGHT_BUTTON) {
+      return pad_old.buttons & SCE_CTRL_R3;
+    }
   }
   return 0;
 }
@@ -261,24 +286,28 @@ inline short read_analog(uint32_t defined) {
   uint32_t dev_type = defined & INPUT_TYPE_MASK;
   uint32_t dev_val  = defined & INPUT_VALUE_MASK;
 
-  if (dev_type == INPUT_TYPE_ANALOG) {
+  uint32_t ret = is_pressed(defined);
+  if (ret) {
+    return 0xff;
+  }
+  if (dev_type & INPUT_TYPE_ANALOG) {
     int v;
     switch(dev_val) {
-      case LEFTX:
+      case ANALOG_LEFTX:
         v = pad.lx;
         break;
-      case LEFTY:
+      case ANALOG_LEFTY:
         v = pad.ly;
         break;
-      case RIGHTX:
+      case ANALOG_RIGHTX:
         v = pad.rx;
         break;
-      case RIGHTY:
+      case ANALOG_RIGHTY:
         v = pad.ry;
         break;
-      case LEFT_TRIGGER:
+      case ANALOG_LEFT_TRIGGER:
         return pad.lt;
-      case RIGHT_TRIGGER:
+      case ANALOG_RIGHT_TRIGGER:
         return pad.rt;
       default:
         return 0;
@@ -286,7 +315,7 @@ inline short read_analog(uint32_t defined) {
     v = v * 256 - (1 << 15) + 128;
     return (short)(v);
   }
-  return is_pressed(defined) ? 0xff : 0;
+  return 0;
 }
 
 inline void special(uint32_t defined, uint32_t pressed, uint32_t old_pressed) {
@@ -294,49 +323,52 @@ inline void special(uint32_t defined, uint32_t pressed, uint32_t old_pressed) {
   uint32_t dev_val  = defined & INPUT_VALUE_MASK;
 
   if (pressed) {
-    switch(dev_type) {
-      case INPUT_TYPE_SPECIAL:
-        if (dev_val == INPUT_SPECIAL_KEY_PAUSE) {
-          connection_minimize();
+    if (dev_type & INPUT_TYPE_SPECIAL) {
+      if (dev_val == INPUT_SPECIAL_KEY_PAUSE) {
+        connection_minimize();
+        return;
+      }
+    }
+    if (dev_type & INPUT_TYPE_GAMEPAD) {
+      curr.button |= dev_val;
+      return;
+    }
+    if (dev_type & INPUT_TYPE_ANALOG) {
+      switch(dev_val) {
+        case ANALOG_LEFT_TRIGGER:
+          curr.lt = 0xff;
           return;
-        }
-      case INPUT_TYPE_GAMEPAD:
-        curr.button |= dev_val;
-        return;
-      case INPUT_TYPE_ANALOG:
-        switch(dev_val) {
-          case LEFT_TRIGGER:
-            curr.lt = 0xff;
-            return;
-          case RIGHT_TRIGGER:
-            curr.rt = 0xff;
-            return;
-        }
-        return;
-      case INPUT_TYPE_MOUSE:
-        if (!old_pressed) {
-          LiSendMouseButtonEvent(BUTTON_ACTION_PRESS, dev_val);
-        }
-        return;
-      case INPUT_TYPE_KEYBOARD:
-       if (!old_pressed) {
-          LiSendKeyboardEvent(dev_val, KEY_ACTION_DOWN, 0);
-       }
-       return;
+        case ANALOG_RIGHT_TRIGGER:
+          curr.rt = 0xff;
+          return;
+      }
+      return;
+    }
+    if (dev_type & INPUT_TYPE_MOUSE) {
+      if (!old_pressed) {
+        LiSendMouseButtonEvent(BUTTON_ACTION_PRESS, dev_val);
+      }
+      return;
+    }
+    if (dev_type & INPUT_TYPE_KEYBOARD) {
+      if (!old_pressed) {
+        LiSendKeyboardEvent(dev_val, KEY_ACTION_DOWN, 0);
+      }
+      return;
     }
   } else {
     // released
-    switch(dev_type) {
-      case INPUT_TYPE_MOUSE:
-        if (old_pressed) {
-          LiSendMouseButtonEvent(BUTTON_ACTION_RELEASE, dev_val);
-        }
-        return;
-      case INPUT_TYPE_KEYBOARD:
-        if (old_pressed) {
-          LiSendKeyboardEvent(dev_val, KEY_ACTION_UP, 0);
-        }
-        return;
+    if (dev_type == INPUT_TYPE_MOUSE) {
+      if (old_pressed) {
+        LiSendMouseButtonEvent(BUTTON_ACTION_RELEASE, dev_val);
+      }
+      return;
+    }
+    if (dev_type == INPUT_TYPE_KEYBOARD) {
+      if (old_pressed) {
+        LiSendKeyboardEvent(dev_val, KEY_ACTION_UP, 0);
+      }
+      return;
     }
   }
 
@@ -490,10 +522,10 @@ bool vitainput_init() {
 }
 
 void vitainput_config(CONFIGURATION config) {
-  map.abs_x           = LEFTX               | INPUT_TYPE_ANALOG;
-  map.abs_y           = LEFTY               | INPUT_TYPE_ANALOG;
-  map.abs_rx          = RIGHTX              | INPUT_TYPE_ANALOG;
-  map.abs_ry          = RIGHTY              | INPUT_TYPE_ANALOG;
+  map.abs_x           = ANALOG_LEFTX        | INPUT_TYPE_ANALOG;
+  map.abs_y           = ANALOG_LEFTY        | INPUT_TYPE_ANALOG;
+  map.abs_rx          = ANALOG_RIGHTX       | INPUT_TYPE_ANALOG;
+  map.abs_ry          = ANALOG_RIGHTY       | INPUT_TYPE_ANALOG;
 
   map.btn_dpad_up     = SCE_CTRL_UP         | INPUT_TYPE_GAMEPAD;
   map.btn_dpad_down   = SCE_CTRL_DOWN       | INPUT_TYPE_GAMEPAD;
@@ -510,16 +542,16 @@ void vitainput_config(CONFIGURATION config) {
   map.btn_thumbl      = SCE_CTRL_L1         | INPUT_TYPE_GAMEPAD;
   map.btn_thumbr      = SCE_CTRL_R1         | INPUT_TYPE_GAMEPAD;
 
-  if (config.model == SCE_KERNEL_MODEL_VITATV) {
-    map.btn_tl        = LEFT_TRIGGER        | INPUT_TYPE_ANALOG;
-    map.btn_tr        = RIGHT_TRIGGER       | INPUT_TYPE_ANALOG;
-    map.btn_tl2       = SCE_CTRL_L3         | INPUT_TYPE_GAMEPAD;
-    map.btn_tr2       = SCE_CTRL_R3         | INPUT_TYPE_GAMEPAD;
-  } else {
-    map.btn_tl        = TOUCHSEC_NORTHWEST  | INPUT_TYPE_TOUCHSCREEN;
-    map.btn_tr        = TOUCHSEC_NORTHEAST  | INPUT_TYPE_TOUCHSCREEN;
-    map.btn_tl2       = TOUCHSEC_SOUTHWEST  | INPUT_TYPE_TOUCHSCREEN;
-    map.btn_tr2       = TOUCHSEC_SOUTHEAST  | INPUT_TYPE_TOUCHSCREEN;
+  map.btn_tl          = ANALOG_LEFT_TRIGGER | INPUT_TYPE_ANALOG;
+  map.btn_tr          = ANALOG_RIGHT_TRIGGER| INPUT_TYPE_ANALOG;
+  map.btn_tl2         = ANALOG_LEFT_BUTTON  | INPUT_TYPE_ANALOG;
+  map.btn_tr2         = ANALOG_RIGHT_BUTTON | INPUT_TYPE_ANALOG;
+
+  if (config.model != SCE_KERNEL_MODEL_VITATV) {
+    map.btn_tl        |= TOUCHSEC_NORTHWEST  | INPUT_TYPE_TOUCHSCREEN;
+    map.btn_tr        |= TOUCHSEC_NORTHEAST  | INPUT_TYPE_TOUCHSCREEN;
+    map.btn_tl2       |= TOUCHSEC_SOUTHWEST  | INPUT_TYPE_TOUCHSCREEN;
+    map.btn_tr2       |= TOUCHSEC_SOUTHEAST  | INPUT_TYPE_TOUCHSCREEN;
   }
 
   if (config.mapping) {
