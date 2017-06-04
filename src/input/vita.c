@@ -45,6 +45,8 @@
 #include <psp2/touch.h>
 #include <psp2/rtc.h>
 
+int sceCtrlPeekBufferPositiveExt2(int port, SceCtrlData *pad_data, int count);
+
 #define WIDTH 960
 #define HEIGHT 544
 
@@ -283,33 +285,29 @@ inline uint32_t is_old_pressed(uint32_t defined) {
 }
 
 inline short read_analog(uint32_t defined) {
-  uint32_t dev_type = defined & INPUT_TYPE_MASK;
-  uint32_t dev_val  = defined & INPUT_VALUE_MASK;
-
   uint32_t ret = is_pressed(defined);
   if (ret) {
     return 0xff;
   }
+
+  uint32_t dev_type = defined & INPUT_TYPE_MASK;
+  uint32_t dev_val  = defined & INPUT_VALUE_MASK;
+
   if (dev_type & INPUT_TYPE_ANALOG) {
     int v;
-    switch(dev_val) {
-      case ANALOG_LEFTX:
+    if (dev_val & ANALOG_LEFTX) {
         v = pad.lx;
-        break;
-      case ANALOG_LEFTY:
+    } else if (dev_val & ANALOG_LEFTY) {
         v = pad.ly;
-        break;
-      case ANALOG_RIGHTX:
+    } else if (dev_val & ANALOG_RIGHTX) {
         v = pad.rx;
-        break;
-      case ANALOG_RIGHTY:
+    } else if (dev_val & ANALOG_RIGHTY) {
         v = pad.ry;
-        break;
-      case ANALOG_LEFT_TRIGGER:
+    } else if (dev_val & ANALOG_LEFT_TRIGGER) {
         return pad.lt;
-      case ANALOG_RIGHT_TRIGGER:
+    } else if (dev_val & ANALOG_RIGHT_TRIGGER) {
         return pad.rt;
-      default:
+    } else {
         return 0;
     }
     v = v * 256 - (1 << 15) + 128;
