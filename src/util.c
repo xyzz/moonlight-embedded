@@ -4,7 +4,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 
-void swapAppListEntries(PAPP_LIST a, PAPP_LIST b) {
+void swap_app_list_entries(PAPP_LIST a, PAPP_LIST b) {
     PAPP_LIST tmp = malloc(sizeof(APP_LIST));
     tmp->id = a->id;
     tmp->name = a->name;
@@ -17,7 +17,7 @@ void swapAppListEntries(PAPP_LIST a, PAPP_LIST b) {
     free(tmp);
 }
 
-void sortAppList(PAPP_LIST list) {
+void sort_app_list(PAPP_LIST list) {
     if (list == NULL) {
         return;
     }
@@ -32,7 +32,7 @@ void sortAppList(PAPP_LIST list) {
 
         while (cur->next != prev) {
             if (strcmp(cur->name, cur->next->name) > 0) {
-                swapAppListEntries(cur, cur->next);
+                swap_app_list_entries(cur, cur->next);
                 swapped = 1;
             }
             cur = cur->next;

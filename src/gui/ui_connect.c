@@ -261,7 +261,7 @@ int ui_connect(char *address) {
     }
 
     if (server_applist != NULL) {
-      sortAppList(server_applist);
+      sort_app_list(server_applist);
       PAPP_LIST list = server_applist;
       while (list) {
         list = list->next;

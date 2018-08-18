@@ -1,3 +1,3 @@
  #include "../libgamestream/xml.h"
 
-void sortAppList(PAPP_LIST list);
+void sort_app_list(PAPP_LIST list);
