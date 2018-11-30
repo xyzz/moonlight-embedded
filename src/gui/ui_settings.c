@@ -381,14 +381,15 @@ enum {
   SETTINGS_ENABLE_STREAM_OPTIMIZE,
   SETTINGS_SAVE_DEBUG_LOG,
   SETTINGS_DISABLE_POWERSAVE,
+  SETTINGS_DISABLE_VSYNC,
   SETTINGS_ENABLE_MAPPING,
   SETTINGS_BACK_DEADZONE,
   SETTINGS_SPECIAL_KEYS,
   SETTINGS_MOUSE_ACCEL,
 };
 
-
-enum {
+enum
+{
   SETTINGS_VIEW_RESOLUTION,
   SETTINGS_VIEW_FPS,
   SETTINGS_VIEW_BITRATE,
@@ -397,6 +398,7 @@ enum {
   SETTINGS_VIEW_ENABLE_STREAM_OPTIMIZE,
   SETTINGS_VIEW_SAVE_DEBUG_LOG,
   SETTINGS_VIEW_DISABLE_POWERSAVE,
+  SETTINGS_VIEW_DISABLE_VSYNC,
   SETTINGS_VIEW_ENABLE_MAPPING,
   SETTINGS_VIEW_BACK_DEADZONE,
   SETTINGS_VIEW_SPECIAL_KEYS,
@@ -516,6 +518,13 @@ static int settings_loop(int id, void *context, const input_data *input) {
       did_change = 1;
       config.disable_powersave = !config.disable_powersave;
       break;
+    case SETTINGS_DISABLE_VSYNC:
+      if ((input->buttons & SCE_CTRL_CROSS) == 0 || input->buttons & SCE_CTRL_HOLD) {
+        break;
+      }
+      did_change = 1;
+      config.disable_vsync = !config.disable_vsync;
+      break;
     case SETTINGS_ENABLE_MAPPING:
       if ((input->buttons & SCE_CTRL_CROSS) == 0 || input->buttons & SCE_CTRL_HOLD) {
         break;
@@ -593,6 +602,9 @@ static int settings_loop(int id, void *context, const input_data *input) {
   sprintf(current, "%s", config.disable_powersave ? "yes" : "no");
   MENU_REPLACE(SETTINGS_VIEW_DISABLE_POWERSAVE, current);
 
+  sprintf(current, "%s", config.disable_vsync ? "yes" : "no");
+  MENU_REPLACE(SETTINGS_VIEW_DISABLE_VSYNC, current);
+
   sprintf(current, "%s", config.save_debug_log ? "yes" : "no");
   MENU_REPLACE(SETTINGS_VIEW_SAVE_DEBUG_LOG, current);
 
@@ -645,6 +657,7 @@ int ui_settings_menu() {
   MENU_ENTRY(SETTINGS_SOPS, SETTINGS_VIEW_SOPS, "Change graphical game settings for performance", "");
   MENU_ENTRY(SETTINGS_ENABLE_FRAME_INVAL, SETTINGS_VIEW_ENABLE_FRAME_INVAL, "Enable reference frame invalidation", "");
   MENU_ENTRY(SETTINGS_ENABLE_STREAM_OPTIMIZE, SETTINGS_VIEW_ENABLE_STREAM_OPTIMIZE, "Enable stream optimization", "");
+  MENU_ENTRY(SETTINGS_DISABLE_VSYNC, SETTINGS_VIEW_DISABLE_VSYNC, "Disable V-Sync", "");
 
   MENU_CATEGORY("System");
   MENU_ENTRY(SETTINGS_SAVE_DEBUG_LOG, SETTINGS_VIEW_SAVE_DEBUG_LOG, "Enable debug log", "");
