@@ -100,6 +100,8 @@ static int ini_handle(void *out, const char *section, const char *name,
       config->enable_frame_pacer = BOOL(value);
     } else if (strcmp(name, "disable_powersave") == 0) {
       config->disable_powersave = BOOL(value);
+      } else if (strcmp(name, "show_fps") == 0) {
+      config->show_fps = BOOL(value);
     } else if (strcmp(name, "save_debug_log") == 0) {
       config->save_debug_log = BOOL(value);
     } else if (strcmp(name, "mapping") == 0) {
@@ -151,6 +153,7 @@ void config_save(const char* filename, PCONFIGURATION config) {
 
   write_config_bool(fd, "enable_frame_pacer", config->enable_frame_pacer);
   write_config_bool(fd, "disable_powersave", config->disable_powersave);
+  write_config_bool(fd, "show_fps", config->show_fps);
   write_config_bool(fd, "save_debug_log", config->save_debug_log);
 
   write_config_int(fd, "mouse_acceleration", config->mouse_acceleration);
@@ -198,6 +201,7 @@ void config_parse(int argc, char* argv[], PCONFIGURATION config) {
   config->unsupported_version = false;
   config->save_debug_log = false;
   config->disable_powersave = true;
+  config->show_fps = false;
   config->enable_frame_pacer = true;
 
   config->special_keys.nw = INPUT_SPECIAL_KEY_PAUSE | INPUT_TYPE_SPECIAL;
