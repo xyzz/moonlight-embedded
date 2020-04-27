@@ -39,7 +39,6 @@
 
 #if 0
 #define printf vita_debug_log
-#define DRAW_FPS 1
 #endif
 
 void draw_indicators();
