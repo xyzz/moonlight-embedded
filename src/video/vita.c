@@ -410,7 +410,7 @@ static int vita_submit_decode_unit(PDECODE_UNIT decodeUnit) {
       void *tex_buf = vita2d_texture_get_datap(frame_texture);
       vita2d_draw_texture(frame_texture, 0, 0);
       if (config.show_fps) {
-        vita2d_font_draw_textf(font, 20, 40, RGBA8(0xFF, 0xFF, 0xFF, 0xFF), 12, "fps: %u / %u", curr_fps[0], curr_fps[1]);
+        vita2d_font_draw_textf(font, 20, 40, RGBA8(0xFF, 0xFF, 0xFF, 0xFF), 14, "fps: %u / %u", curr_fps[0], curr_fps[1]);
       }
       draw_indicators();
       vita2d_end_drawing();
