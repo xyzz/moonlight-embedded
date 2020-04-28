@@ -184,7 +184,7 @@ static void vita_cleanup() {
     video_status--;
   }
   if (video_status == INIT_AVC_LIB) {
-    sceVideodecTermLibrary(0x1001);
+    sceVideodecTermLibrary(SCE_VIDEODEC_TYPE_HW_AVCDEC);
 
     if (init != NULL) {
       free(init);
@@ -253,7 +253,7 @@ static int vita_setup(int videoFormat, int width, int height, int redrawRate, vo
     init->numOfRefFrames = 5;
     init->numOfStreams = 1;
 
-    ret = sceVideodecInitLibrary(0x1001, init);
+    ret = sceVideodecInitLibrary(SCE_VIDEODEC_TYPE_HW_AVCDEC, init);
     if (ret < 0) {
       printf("sceVideodecInitLibrary 0x%x\n", ret);
       ret = VITA_VIDEO_ERROR_INIT_LIB;
@@ -278,7 +278,7 @@ static int vita_setup(int videoFormat, int width, int height, int redrawRate, vo
 
     SceAvcdecDecoderInfo decoder_info_out = {0};
 
-    ret = sceAvcdecQueryDecoderMemSize(0x1001, decoder_info, &decoder_info_out);
+    ret = sceAvcdecQueryDecoderMemSize(SCE_VIDEODEC_TYPE_HW_AVCDEC, decoder_info, &decoder_info_out);
     if (ret < 0) {
       printf("sceAvcdecQueryDecoderMemSize 0x%x size 0x%x\n", ret, decoder_info_out.frameMemSize);
       ret = VITA_VIDEO_ERROR_QUERY_DEC_MEMSIZE;
@@ -316,7 +316,7 @@ static int vita_setup(int videoFormat, int width, int height, int redrawRate, vo
     // INIT_AVC_DEC
     printf("base: 0x%08x\n", decoder->frameBuf.pBuf);
 
-    ret = sceAvcdecCreateDecoder(0x1001, decoder, decoder_info);
+    ret = sceAvcdecCreateDecoder(SCE_VIDEODEC_TYPE_HW_AVCDEC, decoder, decoder_info);
     if (ret < 0) {
       printf("sceAvcdecCreateDecoder 0x%x\n", ret);
       ret = VITA_VIDEO_ERROR_CREATE_DEC;
