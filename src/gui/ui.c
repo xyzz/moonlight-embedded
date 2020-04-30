@@ -144,7 +144,7 @@ int global_loop(int cursor, void *ctx, const input_data *input) {
       sceKernelDelayThread(500 * 1000);
       connection_resume();
 
-      while (connection_get_status() == LI_CONNECTED) {
+      while (connection_is_connected()) {
         sceKernelDelayThread(500 * 1000);
       }
     }
