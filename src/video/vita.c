@@ -156,11 +156,11 @@ static int vita_pacer_thread_main(SceSize args, void *argp) {
 }
 
 static void vita_cleanup() {
-  int ret;
   if (video_status == INIT_FRAME_PACER_THREAD) {
     active_pacer_thread = false;
     // wait 10sec
     SceUInt timeout = 10000000;
+    int ret;
     sceKernelWaitThreadEnd(pacer_thread, &ret, &timeout);
     sceKernelDeleteThread(pacer_thread);
     video_status--;
