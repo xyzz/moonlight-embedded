@@ -146,6 +146,10 @@ bool connection_is_ready() {
   return connection_status != LI_DISCONNECTED;
 }
 
+bool connection_is_connected() {
+  return connection_status == LI_CONNECTED;
+}
+
 int connection_get_status() {
   return connection_status;
 }

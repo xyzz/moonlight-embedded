@@ -53,4 +53,5 @@ int connection_resume();
 int connection_terminate();
 
 bool connection_is_ready();
+bool connection_is_connected();
 int connection_get_status();
