@@ -165,10 +165,12 @@ static void vita_cleanup() {
     sceKernelDeleteThread(pacer_thread);
     video_status--;
   }
+
   if (video_status == INIT_AVC_DEC) {
     sceAvcdecDeleteDecoder(decoder);
     video_status--;
   }
+
   if (video_status == INIT_DECODER_MEMBLOCK) {
     if (decoderblock >= 0) {
       sceKernelFreeMemBlock(decoderblock);
@@ -184,6 +186,7 @@ static void vita_cleanup() {
     }
     video_status--;
   }
+
   if (video_status == INIT_AVC_LIB) {
     sceVideodecTermLibrary(SCE_VIDEODEC_TYPE_HW_AVCDEC);
 
@@ -229,6 +232,7 @@ static int vita_setup(int videoFormat, int width, int height, int redrawRate, vo
     if (!frame_texture) {
       frame_texture = vita2d_create_empty_texture_format(SCREEN_WIDTH, SCREEN_HEIGHT, SCE_GXM_TEXTURE_FORMAT_U8U8U8U8_ABGR);
     }
+
     video_status++;
   }
 
@@ -414,7 +418,9 @@ static int vita_submit_decode_unit(PDECODE_UNIT decodeUnit) {
       vita2d_draw_texture(frame_texture, 0, 0);
       draw_fps();
       draw_indicators();
+      
       vita2d_end_drawing();
+
       vita2d_wait_rendering_done();
       vita2d_swap_buffers();
 
