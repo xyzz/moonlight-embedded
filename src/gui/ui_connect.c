@@ -475,19 +475,41 @@ void ui_connect_paired_device(device_info_t *info) {
     display_error("Unpaired device\n%s", info->name);
     return;
   }
+
   char *addr = NULL;
-  if (info->internal && check_connection(info->name, info->internal)) {
-    addr = info->internal;
-  } else if (info->external && check_connection(info->name, info->external)) {
-    addr = info->external;
+  switch (info->last_used_address)
+  {
+    case 1:
+      if (info->external && check_connection(info->name, info->external)) {
+        addr = info->external;
+        info->last_used_address = 1;
+      } else if (info->internal && check_connection(info->name, info->internal)) {
+        addr = info->internal;
+        info->last_used_address = 0;
+      }
+      break;
+    case 0:
+    default:
+      if (info->internal && check_connection(info->name, info->internal)) {
+        addr = info->internal;
+        info->last_used_address = 0;
+      } else if (info->external && check_connection(info->name, info->external)) {
+        addr = info->external;
+        info->last_used_address = 1;
+      }
+      break;
   }
+  save_device_info(info);
+  
   if (addr == NULL) {
     display_error("Can't connect to server\n%s", info->name);
     return;
   }
+
   if (!ui_connect(info->name, addr)) {
     return;
   }
+
   while (ui_connected_menu() == QUIT_RELOAD);
 }
 
