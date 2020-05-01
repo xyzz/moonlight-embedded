@@ -50,7 +50,7 @@ void utf16_to_utf8(uint16_t *src, uint8_t *dst) {
   *dst = '\0';
 }
 
-void utf8_to_utf16(uint8_t *src, uint16_t *dst) {
+void utf8_to_utf16(const uint8_t *src, uint16_t *dst) {
   int i;
   for (i = 0; src[i];) {
     if ((src[i] & 0xE0) == 0xE0) {
@@ -70,8 +70,8 @@ void utf8_to_utf16(uint8_t *src, uint16_t *dst) {
 
 void initImeDialog(SceImeType type, const char *title, char *initial_text, int max_text_length) {
   // Convert UTF8 to UTF16
-  utf8_to_utf16((uint8_t *)title, ime_title_utf16);
-  utf8_to_utf16((uint8_t *)initial_text, ime_initial_text_utf16);
+  utf8_to_utf16((const uint8_t *)title, ime_title_utf16);
+  utf8_to_utf16((const uint8_t *)initial_text, ime_initial_text_utf16);
 
   SceImeDialogParam param;
   sceImeDialogParamInit(&param);
