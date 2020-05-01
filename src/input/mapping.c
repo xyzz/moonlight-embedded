@@ -108,6 +108,7 @@ void mapping_load(char* fileName, struct mapping* map) {
     }
   }
   free(line);
+  fclose(fd);
 }
 
 void mapping_save(char* fileName, struct mapping* map) {
