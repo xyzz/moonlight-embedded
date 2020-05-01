@@ -208,7 +208,7 @@ static int ui_search_device_callback(int id, void *context, const input_data *in
       return 0;
     }
 
-    uint32_t extern_addr = 0;
+    unsigned int extern_addr = 0;
     if (LiFindExternalAddressIP4("stun.stunprotocol.org", 3478, &extern_addr) == 0) {
       struct sockaddr_in addr;
       addr.sin_family = AF_INET;

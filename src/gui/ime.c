@@ -68,7 +68,7 @@ void utf8_to_utf16(uint8_t *src, uint16_t *dst) {
   *dst = '\0';
 }
 
-void initImeDialog(SceImeType type, char *title, char *initial_text, int max_text_length) {
+void initImeDialog(SceImeType type, const char *title, char *initial_text, int max_text_length) {
   // Convert UTF8 to UTF16
   utf8_to_utf16((uint8_t *)title, ime_title_utf16);
   utf8_to_utf16((uint8_t *)initial_text, ime_initial_text_utf16);
