@@ -55,7 +55,7 @@ enum {
   VITA_VIDEO_ERROR_CREATE_PACER_THREAD  = 0x80010007,
 };
 
-#define DECODER_BUFFER_SIZE(w, h) (92 * 1024) //(4 * w * h)
+#define DECODER_BUFFER_SIZE (92 * 1024)
 
 static char* decoder_buffer = NULL;
 
@@ -228,7 +228,7 @@ static int vita_setup(int videoFormat, int width, int height, int redrawRate, vo
 
   if (video_status == INIT_GS) {
     // INIT_FRAMEBUFFER
-    decoder_buffer = malloc(DECODER_BUFFER_SIZE(width, height));
+    decoder_buffer = malloc(DECODER_BUFFER_SIZE);
     if (decoder_buffer == NULL) {
       printf("not enough memory\n");
       ret = VITA_VIDEO_ERROR_NO_MEM;
@@ -376,7 +376,7 @@ static int vita_submit_decode_unit(PDECODE_UNIT decodeUnit) {
   picture.frame.frameHeight = SCREEN_HEIGHT;
   picture.frame.pPicture[0] = vita2d_texture_get_datap(frame_texture);
 
-  if (decodeUnit->fullLength >= DECODER_BUFFER_SIZE(width, height)) {
+  if (decodeUnit->fullLength >= DECODER_BUFFER_SIZE) {
     printf("Video decode buffer too small\n");
     exit(1);
   }
