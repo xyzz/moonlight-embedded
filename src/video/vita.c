@@ -110,6 +110,10 @@ typedef struct {
   unsigned int texture_height;
   float origin_x;
   float origin_y;
+  float region_x1;
+  float region_y1;
+  float region_x2;
+  float region_y2;
 } image_scaling_settings;
 
 static image_scaling_settings image_scaling = {0};
@@ -118,7 +122,7 @@ static image_scaling_settings image_scaling = {0};
 // and the smallest resolution is 64
 // Full supported resolution list can be found at:
 // https://github.com/MakiseKurisu/vita-sceVideodecInitLibrary-test/
-#define ROUND_NEAREST_16(x)                     (round(((float) (x)) / 16) * 16)
+#define ROUND_NEAREST_16(x)                     (round(((double) (x)) / 16) * 16)
 #define VITA_DECODER_RESOLUTION_LOWER_BOUND(x)  ((x) < 64 ? 64 : (x))
 #define VITA_DECODER_RESOLUTION(x)              (VITA_DECODER_RESOLUTION_LOWER_BOUND(ROUND_NEAREST_16(x)))
 
@@ -127,21 +131,55 @@ void update_scaling_settings(int width, int height) {
   image_scaling.texture_height = SCREEN_HEIGHT;
   image_scaling.origin_x = 0;
   image_scaling.origin_y = 0;
-      
+  image_scaling.region_x1 = 0;
+  image_scaling.region_y1 = 0;
+  image_scaling.region_x2 = image_scaling.texture_width;
+  image_scaling.region_y2 = image_scaling.texture_height;
+
+  double scaled_width = (double) SCREEN_HEIGHT * width / height;
+  double scaled_height = (double) SCREEN_WIDTH * height / width;
+
   if (SCREEN_WIDTH * height == SCREEN_HEIGHT * width) {
     // streaming resolution ratio matches Vita's screen ratio
     // use default setting
   } else if (SCREEN_WIDTH * height > SCREEN_HEIGHT * width) {
     // host ratio example: 4:3, 16:10
     // Vita ratio range: 2:16 (64 x 544) - native (960 x 544)
-    image_scaling.texture_width = VITA_DECODER_RESOLUTION((float) SCREEN_HEIGHT * width / height);
-    image_scaling.origin_x = (SCREEN_WIDTH - image_scaling.texture_width) / 2;
+    if (config.center_region_only) {
+      image_scaling.texture_height = VITA_DECODER_RESOLUTION(scaled_height);
+      image_scaling.region_y1 = VITA_DECODER_RESOLUTION((scaled_height - SCREEN_HEIGHT) / 2);
+      image_scaling.region_y2 = VITA_DECODER_RESOLUTION((scaled_height + SCREEN_HEIGHT) / 2);
+    } else {
+      image_scaling.texture_width = VITA_DECODER_RESOLUTION(scaled_width);
+      image_scaling.region_x2 = VITA_DECODER_RESOLUTION(scaled_width);
+      image_scaling.origin_x = round((double) (SCREEN_WIDTH - image_scaling.texture_width) / 2);
+    }
   } else {
     // host ratio example: 16:9, 21:9, 32:9
     // Vita ratio range: native (960 x 544) - 15:1 (960 x 64)
-    image_scaling.texture_height = VITA_DECODER_RESOLUTION((float) SCREEN_WIDTH * height / width);
-    image_scaling.origin_y = (SCREEN_HEIGHT - image_scaling.texture_height) / 2;
+    if (config.center_region_only) {
+      image_scaling.texture_width = VITA_DECODER_RESOLUTION(scaled_width);
+      image_scaling.region_x1 = VITA_DECODER_RESOLUTION((scaled_width - SCREEN_WIDTH) / 2);
+      image_scaling.region_x2 = VITA_DECODER_RESOLUTION((scaled_width + SCREEN_WIDTH) / 2);
+    } else {
+      image_scaling.texture_height = VITA_DECODER_RESOLUTION(scaled_height);
+      image_scaling.region_y2 = VITA_DECODER_RESOLUTION(scaled_height);
+      image_scaling.origin_y = round((double) (SCREEN_HEIGHT - image_scaling.texture_height) / 2);
+    }
   }
+
+  printf("update_scaling_settings: width = %u\n", width);
+  printf("update_scaling_settings: height = %u\n", height);
+  printf("update_scaling_settings: scaled_width = %f\n", scaled_width);
+  printf("update_scaling_settings: scaled_height = %f\n", scaled_height);
+  printf("update_scaling_settings: image_scaling.texture_width = %u\n", image_scaling.texture_width);
+  printf("update_scaling_settings: image_scaling.texture_height = %u\n", image_scaling.texture_height);
+  printf("update_scaling_settings: image_scaling.origin_x = %f\n", image_scaling.origin_x);
+  printf("update_scaling_settings: image_scaling.origin_y = %f\n", image_scaling.origin_y);
+  printf("update_scaling_settings: image_scaling.region_x1 = %f\n", image_scaling.region_x1);
+  printf("update_scaling_settings: image_scaling.region_y1 = %f\n", image_scaling.region_y1);
+  printf("update_scaling_settings: image_scaling.region_x2 = %f\n", image_scaling.region_x2);
+  printf("update_scaling_settings: image_scaling.region_y2 = %f\n", image_scaling.region_y2);
 }
 
 static int vita_pacer_thread_main(SceSize args, void *argp) {
@@ -480,9 +518,13 @@ static int vita_submit_decode_unit(PDECODE_UNIT decodeUnit) {
 void draw_streaming(vita2d_texture *frame_texture) {
   // ui is still rendering in the background, clear the screen first
   vita2d_clear_screen();
-  vita2d_draw_texture(frame_texture,
-                      image_scaling.origin_x,
-                      image_scaling.origin_y);
+  vita2d_draw_texture_part(frame_texture,
+                           image_scaling.origin_x,
+                           image_scaling.origin_y,
+                           image_scaling.region_x1,
+                           image_scaling.region_y1,
+                           image_scaling.region_x2,
+                           image_scaling.region_y2);
 }
 
 void draw_fps() {
