@@ -98,6 +98,8 @@ static int ini_handle(void *out, const char *section, const char *name,
       config->localaudio = BOOL(value);
     } else if (strcmp(name, "enable_frame_pacer") == 0) {
       config->enable_frame_pacer = BOOL(value);
+    } else if (strcmp(name, "center_region_only") == 0) {
+      config->center_region_only = BOOL(value);
     } else if (strcmp(name, "disable_powersave") == 0) {
       config->disable_powersave = BOOL(value);
     } else if (strcmp(name, "jp_layout") == 0) {
@@ -154,6 +156,7 @@ void config_save(const char* filename, PCONFIGURATION config) {
     write_config_string(fd, "app", config->app);
 
   write_config_bool(fd, "enable_frame_pacer", config->enable_frame_pacer);
+  write_config_bool(fd, "center_region_only", config->center_region_only);
   write_config_bool(fd, "disable_powersave", config->disable_powersave);
   write_config_bool(fd, "jp_layout", config->jp_layout);
   write_config_bool(fd, "show_fps", config->show_fps);
@@ -218,6 +221,7 @@ void config_parse(int argc, char* argv[], PCONFIGURATION config) {
   config->jp_layout = false;
   config->show_fps = false;
   config->enable_frame_pacer = true;
+  config->center_region_only = false;
 
   config->special_keys.nw = INPUT_SPECIAL_KEY_PAUSE | INPUT_TYPE_SPECIAL;
   config->special_keys.sw = SPECIAL_FLAG | INPUT_TYPE_GAMEPAD;
