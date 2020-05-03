@@ -103,6 +103,14 @@ uint32_t need_drop = 0;
 uint32_t curr_fps[2] = {0, 0};
 float carry = 0;
 
+// Vita's sceVideodecInitLibrary only accept resolution that is multiple of 16 on either dimension,
+// and the smallest resolution is 64
+// Full supported resolution list can be found at:
+// https://github.com/MakiseKurisu/vita-sceVideodecInitLibrary-test/
+#define ROUND_NEAREST_16(x)                     (round(((float) (x)) / 16) * 16)
+#define VITA_DECODER_RESOLUTION_LOWER_BOUND(x)  ((x) < 64 ? 64 : (x))
+#define VITA_DECODER_RESOLUTION(x)              (VITA_DECODER_RESOLUTION_LOWER_BOUND(ROUND_NEAREST_16(x)))
+
 static int vita_pacer_thread_main(SceSize args, void *argp) {
   // 1s
   int wait = 1000000;
@@ -252,14 +260,8 @@ static int vita_setup(int videoFormat, int width, int height, int redrawRate, vo
       }
     }
     init->size = sizeof(SceVideodecQueryInitInfoHwAvcdec);
-    init->horizontal = width;
-    init->vertical = height;
-    // XXX: specialized setup for 960x540
-    // when we pass just 960x540 instead 960x544, sceVideodecInitLibrary
-    // would be failed
-    if (width == 960 && height == 540) {
-      init->vertical = 544;
-    }
+    init->horizontal = VITA_DECODER_RESOLUTION(width);
+    init->vertical = VITA_DECODER_RESOLUTION(height);
     init->numOfRefFrames = 5;
     init->numOfStreams = 1;
 
