@@ -242,8 +242,12 @@ static int vita_setup(int videoFormat, int width, int height, int redrawRate, vo
       ret = VITA_VIDEO_ERROR_NO_MEM;
       goto cleanup;
     }
-    if (!frame_texture) {
-      frame_texture = vita2d_create_empty_texture_format(SCREEN_WIDTH, SCREEN_HEIGHT, SCE_GXM_TEXTURE_FORMAT_U8U8U8U8_ABGR);
+
+    frame_texture = vita2d_create_empty_texture_format(SCREEN_WIDTH, SCREEN_HEIGHT, SCE_GXM_TEXTURE_FORMAT_U8U8U8U8_ABGR);
+    if (frame_texture == NULL) {
+      printf("not enough memory\n");
+      ret = VITA_VIDEO_ERROR_NO_MEM;
+      goto cleanup;
     }
 
     video_status++;
