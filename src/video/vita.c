@@ -198,6 +198,11 @@ static void vita_cleanup() {
   }
 
   if (video_status == INIT_FRAMEBUFFER) {
+    if (frame_texture != NULL) {
+      vita2d_free_texture(frame_texture);
+      frame_texture = NULL;
+    }
+
     if (decoder_buffer != NULL) {
       free(decoder_buffer);
       decoder_buffer = NULL;
