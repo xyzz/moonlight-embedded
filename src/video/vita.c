@@ -34,6 +34,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #include <stdarg.h>
 
@@ -41,6 +42,7 @@
 #define printf vita_debug_log
 #endif
 
+void draw_streaming(vita2d_texture *frame_texture);
 void draw_fps();
 void draw_indicators();
 
@@ -103,6 +105,15 @@ uint32_t need_drop = 0;
 uint32_t curr_fps[2] = {0, 0};
 float carry = 0;
 
+typedef struct {
+  unsigned int texture_width;
+  unsigned int texture_height;
+  float origin_x;
+  float origin_y;
+} image_scaling_settings;
+
+static image_scaling_settings image_scaling = {0};
+
 // Vita's sceVideodecInitLibrary only accept resolution that is multiple of 16 on either dimension,
 // and the smallest resolution is 64
 // Full supported resolution list can be found at:
@@ -110,6 +121,28 @@ float carry = 0;
 #define ROUND_NEAREST_16(x)                     (round(((float) (x)) / 16) * 16)
 #define VITA_DECODER_RESOLUTION_LOWER_BOUND(x)  ((x) < 64 ? 64 : (x))
 #define VITA_DECODER_RESOLUTION(x)              (VITA_DECODER_RESOLUTION_LOWER_BOUND(ROUND_NEAREST_16(x)))
+
+void update_scaling_settings(int width, int height) {
+  image_scaling.texture_width = SCREEN_WIDTH;
+  image_scaling.texture_height = SCREEN_HEIGHT;
+  image_scaling.origin_x = 0;
+  image_scaling.origin_y = 0;
+      
+  if (SCREEN_WIDTH * height == SCREEN_HEIGHT * width) {
+    // streaming resolution ratio matches Vita's screen ratio
+    // use default setting
+  } else if (SCREEN_WIDTH * height > SCREEN_HEIGHT * width) {
+    // host ratio example: 4:3, 16:10
+    // Vita ratio range: 2:16 (64 x 544) - native (960 x 544)
+    image_scaling.texture_width = VITA_DECODER_RESOLUTION((float) SCREEN_HEIGHT * width / height);
+    image_scaling.origin_x = (SCREEN_WIDTH - image_scaling.texture_width) / 2;
+  } else {
+    // host ratio example: 16:9, 21:9, 32:9
+    // Vita ratio range: native (960 x 544) - 15:1 (960 x 64)
+    image_scaling.texture_height = VITA_DECODER_RESOLUTION((float) SCREEN_WIDTH * height / width);
+    image_scaling.origin_y = (SCREEN_HEIGHT - image_scaling.texture_height) / 2;
+  }
+}
 
 static int vita_pacer_thread_main(SceSize args, void *argp) {
   // 1s
@@ -236,6 +269,8 @@ static int vita_setup(int videoFormat, int width, int height, int redrawRate, vo
 
   if (video_status == INIT_GS) {
     // INIT_FRAMEBUFFER
+    update_scaling_settings(width, height);
+
     decoder_buffer = malloc(DECODER_BUFFER_SIZE);
     if (decoder_buffer == NULL) {
       printf("not enough memory\n");
@@ -243,7 +278,7 @@ static int vita_setup(int videoFormat, int width, int height, int redrawRate, vo
       goto cleanup;
     }
 
-    frame_texture = vita2d_create_empty_texture_format(SCREEN_WIDTH, SCREEN_HEIGHT, SCE_GXM_TEXTURE_FORMAT_U8U8U8U8_ABGR);
+    frame_texture = vita2d_create_empty_texture_format(image_scaling.texture_width, image_scaling.texture_height, SCE_GXM_TEXTURE_FORMAT_U8U8U8U8_ABGR);
     if (frame_texture == NULL) {
       printf("not enough memory\n");
       ret = VITA_VIDEO_ERROR_NO_MEM;
@@ -363,9 +398,6 @@ cleanup:
 }
 
 static int vita_submit_decode_unit(PDECODE_UNIT decodeUnit) {
-  unsigned int width = vita2d_texture_get_width(frame_texture);
-  unsigned int height = vita2d_texture_get_height(frame_texture);
-
   SceAvcdecAu au = {0};
   SceAvcdecArrayPicture array_picture = {0};
   struct SceAvcdecPicture picture = {0};
@@ -377,9 +409,9 @@ static int vita_submit_decode_unit(PDECODE_UNIT decodeUnit) {
 
   picture.size = sizeof(picture);
   picture.frame.pixelType = 0;
-  picture.frame.framePitch = LINE_SIZE;
-  picture.frame.frameWidth = SCREEN_WIDTH;
-  picture.frame.frameHeight = SCREEN_HEIGHT;
+  picture.frame.framePitch = image_scaling.texture_width;
+  picture.frame.frameWidth = image_scaling.texture_width;
+  picture.frame.frameHeight = image_scaling.texture_height;
   picture.frame.pPicture[0] = vita2d_texture_get_datap(frame_texture);
 
   if (decodeUnit->fullLength >= DECODER_BUFFER_SIZE) {
@@ -425,7 +457,8 @@ static int vita_submit_decode_unit(PDECODE_UNIT decodeUnit) {
       need_drop--;
     } else {
       vita2d_start_drawing();
-      vita2d_draw_texture(frame_texture, 0, 0);
+      
+      draw_streaming(frame_texture);
       draw_fps();
       draw_indicators();
       
@@ -442,6 +475,12 @@ static int vita_submit_decode_unit(PDECODE_UNIT decodeUnit) {
   //   return DR_NEED_IDR;
 
   return DR_OK;
+}
+
+void draw_streaming(vita2d_texture *frame_texture) {
+  vita2d_draw_texture(frame_texture,
+                      image_scaling.origin_x,
+                      image_scaling.origin_y);
 }
 
 void draw_fps() {
