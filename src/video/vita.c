@@ -429,11 +429,7 @@ static int vita_submit_decode_unit(PDECODE_UNIT decodeUnit) {
       vita2d_wait_rendering_done();
       vita2d_swap_buffers();
 
-      if (ret < 0) {
-        printf("Failed to sceDisplaySetFrameBuf: 0x%x\n", ret);
-      } else {
-        frame_count++;
-      }
+      frame_count++;
     }
   }
 
