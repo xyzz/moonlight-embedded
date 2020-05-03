@@ -478,6 +478,8 @@ static int vita_submit_decode_unit(PDECODE_UNIT decodeUnit) {
 }
 
 void draw_streaming(vita2d_texture *frame_texture) {
+  // ui is still rendering in the background, clear the screen first
+  vita2d_clear_screen();
   vita2d_draw_texture(frame_texture,
                       image_scaling.origin_x,
                       image_scaling.origin_y);
