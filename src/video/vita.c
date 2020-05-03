@@ -419,7 +419,6 @@ static int vita_submit_decode_unit(PDECODE_UNIT decodeUnit) {
       need_drop--;
     } else {
       vita2d_start_drawing();
-      void *tex_buf = vita2d_texture_get_datap(frame_texture);
       vita2d_draw_texture(frame_texture, 0, 0);
       draw_fps();
       draw_indicators();
