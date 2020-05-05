@@ -450,17 +450,17 @@ static int settings_loop(int id, void *context, const input_data *input) {
       if (!left && !right) {
           break;
       }
-      char *resolutions[] = {"960x544", "960x540", "1280x720", "1920x1080", "1280x540"};
+      char *resolutions[] = {"960x540", "960x544", "1280x540", "1280x720", "1920x1080"};
       sprintf(current, "%dx%d", config.stream.width, config.stream.height);
 
       new_idx = _move_idx_in_array(resolutions, current, left ? -1 : +1);
 
       switch (new_idx) {
-        case 0: config.stream.width = 960; config.stream.height = 544; break;
-        case 1: config.stream.width = 960; config.stream.height = 540; break;
-        case 2: config.stream.width = 1280; config.stream.height = 720; break;
-        case 3: config.stream.width = 1920; config.stream.height = 1080; break;
-        case 4: config.stream.width = 1280; config.stream.height = 540; break;
+        case 0: config.stream.width = 960; config.stream.height = 540; break;
+        case 1: config.stream.width = 960; config.stream.height = 544; break;
+        case 2: config.stream.width = 1280; config.stream.height = 540; break;
+        case 3: config.stream.width = 1280; config.stream.height = 720; break;
+        case 4: config.stream.width = 1920; config.stream.height = 1080; break;
       }
 
       did_change = 1;
