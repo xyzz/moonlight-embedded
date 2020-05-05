@@ -14,9 +14,7 @@
 #define DEVICE_FILE "device.ini"
 
 #define BOOL(v) strcmp((v), "true") == 0
-#define INT(v) atoi((v))
 #define write_bool(fd, key, value) fprintf(fd, "%s = %s\n", key, value ? "true" : "false");
-#define write_int(fd, key, value) fprintf(fd, "%s = %i\n", key, value)
 #define write_string(fd, key, value) fprintf(fd, "%s = %s\n", key, value)
 
 device_infos_t known_devices = {0};
@@ -45,8 +43,8 @@ static int device_ini_handle(void *out, const char *section, const char *name,
     strncpy(info->internal, value, 255);
   } else if (strcmp(name, "external") == 0) {
     strncpy(info->external, value, 255);
-  } else if (strcmp(name, "last_used_address") == 0) {
-    info->last_used_address = INT(value);
+  } else if (strcmp(name, "prefer_external") == 0) {
+    info->prefer_external = BOOL(value);
   }
   return 1;
 }
@@ -85,7 +83,7 @@ device_info_t* append_device(device_info_t *info) {
   p->paired = info->paired;
   strncpy(p->internal, info->internal, 255);
   strncpy(p->external, info->external, 255);
-  p->last_used_address = info->last_used_address;
+  p->prefer_external = info->prefer_external;
   vita_debug_log("append_device: device %s is added to the list\n", p->name);
 
   known_devices.count++;
@@ -102,7 +100,7 @@ bool update_device(device_info_t *info) {
   p->paired = info->paired;
   strncpy(p->internal, info->internal, 255);
   strncpy(p->external, info->external, 255);
-  p->last_used_address = info->last_used_address;
+  p->prefer_external = info->prefer_external;
   return true;
 }
 
@@ -150,7 +148,7 @@ bool load_device_info(device_info_t *info) {
     vita_debug_log("load_device_info:   info->paired = %s\n", info->paired ? "true" : "false");
     vita_debug_log("load_device_info:   info->internal = %s\n", info->internal);
     vita_debug_log("load_device_info:   info->external = %s\n", info->external);
-    vita_debug_log("load_device_info:   info->last_used_address = %i\n", info->last_used_address);
+    vita_debug_log("load_device_info:   info->prefer_external = %s\n", info->prefer_external ? "true" : "false");
     return true;
   } else {
     vita_debug_log("load_device_info: ini_parse returned %d\n", ret);
@@ -179,8 +177,8 @@ void save_device_info(const device_info_t *info) {
   vita_debug_log("save_device_info: external = %s\n", info->external);
   write_string(fd, "external", info->external);
 
-  vita_debug_log("save_device_info: last_used_address = %i\n", info->last_used_address);
-  write_int(fd, "last_used_address", info->last_used_address);
+  vita_debug_log("save_device_info: prefer_external = %s\n", info->prefer_external ? "true" : "false");
+  write_bool(fd, "prefer_external", info->prefer_external);
 
   fclose(fd);
   vita_debug_log("save_device_info: file closed\n");

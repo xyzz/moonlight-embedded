@@ -477,28 +477,14 @@ void ui_connect_paired_device(device_info_t *info) {
   }
 
   char *addr = NULL;
-  switch (info->last_used_address)
-  {
-    case 1:
-      if (info->external && check_connection(info->name, info->external)) {
-        addr = info->external;
-        info->last_used_address = 1;
-      } else if (info->internal && check_connection(info->name, info->internal)) {
-        addr = info->internal;
-        info->last_used_address = 0;
-      }
-      break;
-    case 0:
-    default:
-      if (info->internal && check_connection(info->name, info->internal)) {
-        addr = info->internal;
-        info->last_used_address = 0;
-      } else if (info->external && check_connection(info->name, info->external)) {
-        addr = info->external;
-        info->last_used_address = 1;
-      }
-      break;
+  if (info->prefer_external && info->external && check_connection(info->name, info->external)) {
+    addr = info->external;
+  } else if (info->internal && check_connection(info->name, info->internal)) {
+    addr = info->internal;
+  } else if (info->external && check_connection(info->name, info->external)) {
+    addr = info->external;
   }
+  info->prefer_external = addr == info->external;
   save_device_info(info);
   
   if (addr == NULL) {

@@ -7,7 +7,7 @@ struct device_info {
   bool paired;
   char internal[256];
   char external[256];
-  int last_used_address;
+  bool prefer_external;
 };
 
 typedef struct device_infos device_infos_t;
