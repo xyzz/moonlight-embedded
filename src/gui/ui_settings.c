@@ -412,6 +412,9 @@ enum {
 
 static int SETTINGS_VIEW_IDX[10];
 
+// _countof only works for variable allocated on the stack, not from malloc (sizeof(i) will be incorrect).
+#define _countof(i) (sizeof(i) / sizeof((i)[0]))
+#define _move_idx_in_array(a, f, i) move_idx_in_array((a), _countof(a), (f), (i))
 static int move_idx_in_array(char *array[], int count, char *find, int index_dist) {
   int i = 0;
   for (; i < count; i++) {
@@ -430,6 +433,9 @@ static int move_idx_in_array(char *array[], int count, char *find, int index_dis
   }
 }
 
+#define XSTR(x) STR(x)
+#define STR(x) #x
+
 static int settings_loop(int id, void *context, const input_data *input) {
   menu_entry *menu = context;
   bool did_change = 0;
@@ -447,7 +453,7 @@ static int settings_loop(int id, void *context, const input_data *input) {
       char *resolutions[] = {"960x544", "960x540", "1280x720", "1920x1080", "1280x540"};
       sprintf(current, "%dx%d", config.stream.width, config.stream.height);
 
-      new_idx = move_idx_in_array(resolutions, 7, current, left ? -1 : +1);
+      new_idx = _move_idx_in_array(resolutions, current, left ? -1 : +1);
 
       switch (new_idx) {
         case 0: config.stream.width = 960; config.stream.height = 544; break;
@@ -465,7 +471,7 @@ static int settings_loop(int id, void *context, const input_data *input) {
       }
       char *settings[] = {"30", "60"};
       sprintf(current, "%d", config.stream.fps);
-      new_idx = move_idx_in_array(settings, 2, current, left ? -1 : +1);
+      new_idx = _move_idx_in_array(settings, current, left ? -1 : +1);
 
       switch (new_idx) {
         case 0: config.stream.fps = 30; break;
