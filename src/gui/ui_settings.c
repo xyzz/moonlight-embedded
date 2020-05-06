@@ -433,9 +433,6 @@ static int move_idx_in_array(char *array[], int count, char *find, int index_dis
   }
 }
 
-#define XSTR(x) STR(x)
-#define STR(x) #x
-
 static int settings_loop(int id, void *context, const input_data *input) {
   menu_entry *menu = context;
   bool did_change = 0;
