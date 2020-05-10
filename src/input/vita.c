@@ -397,6 +397,7 @@ static inline void vitainput_process(void) {
           is_old_pressed(INPUT_TYPE_TOUCHSCREEN | TOUCHSEC_SPECIAL_SE));
 
   // mouse
+  bool new_drag_status = touch.finger == 3;
   switch (front_state) {
     case NO_TOUCH_ACTION:
       if (touch.finger > 0) {
@@ -435,7 +436,6 @@ static inline void vitainput_process(void) {
       front_state = ON_SCREEN_SWIPE;
       break;
     case ON_SCREEN_SWIPE:
-      bool new_drag_status = touch.finger == 3;
       if (drag_active != new_drag_status) {
         mouse_click(1, new_drag_status);
         drag_active = new_drag_status;
