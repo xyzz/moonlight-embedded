@@ -383,6 +383,7 @@ enum {
   SETTINGS_DISABLE_POWERSAVE,
   SETTINGS_JP_LAYOUT,
   SETTINGS_SHOW_FPS,
+  SETTINGS_LOCAL_AUDIO,
   SETTINGS_ENABLE_FRAME_PACER,
   SETTINGS_ENABLE_MAPPING,
   SETTINGS_BACK_DEADZONE,
@@ -401,6 +402,7 @@ enum {
   SETTINGS_VIEW_DISABLE_POWERSAVE,
   SETTINGS_VIEW_JP_LAYOUT,
   SETTINGS_VIEW_SHOW_FPS,
+  SETTINGS_VIEW_LOCAL_AUDIO,
   SETTINGS_VIEW_ENABLE_FRAME_PACER,
   SETTINGS_VIEW_ENABLE_MAPPING,
   SETTINGS_VIEW_BACK_DEADZONE,
@@ -536,6 +538,13 @@ static int settings_loop(int id, void *context, const input_data *input) {
       did_change = 1;
       config.show_fps = !config.show_fps;
       break;
+    case SETTINGS_LOCAL_AUDIO:
+      if ((input->buttons & config.btn_confirm) == 0 || input->buttons & SCE_CTRL_HOLD) {
+        break;
+      }
+      did_change = 1;
+      config.localaudio = !config.localaudio;
+      break;
     case SETTINGS_ENABLE_FRAME_PACER:
       if ((input->buttons & config.btn_confirm) == 0 || input->buttons & SCE_CTRL_HOLD) {
         break;
@@ -626,6 +635,9 @@ static int settings_loop(int id, void *context, const input_data *input) {
   sprintf(current, "%s", config.show_fps ? "yes" : "no");
   MENU_REPLACE(SETTINGS_VIEW_SHOW_FPS, current);
 
+  sprintf(current, "%s", config.localaudio ? "yes" : "no");
+  MENU_REPLACE(SETTINGS_VIEW_LOCAL_AUDIO, current);
+
   sprintf(current, "%s", config.enable_frame_pacer ? "yes" : "no");
   MENU_REPLACE(SETTINGS_VIEW_ENABLE_FRAME_PACER, current);
 
@@ -681,6 +693,7 @@ int ui_settings_menu() {
   MENU_ENTRY(SETTINGS_ENABLE_FRAME_INVAL, SETTINGS_VIEW_ENABLE_FRAME_INVAL, "Enable reference frame invalidation", "");
   MENU_ENTRY(SETTINGS_ENABLE_STREAM_OPTIMIZE, SETTINGS_VIEW_ENABLE_STREAM_OPTIMIZE, "Enable stream optimization", "");
   MENU_ENTRY(SETTINGS_ENABLE_FRAME_PACER, SETTINGS_VIEW_ENABLE_FRAME_PACER, "Enable frame pacer", "");
+  MENU_ENTRY(SETTINGS_LOCAL_AUDIO, SETTINGS_VIEW_LOCAL_AUDIO, "Enable local audio", "");
 
   MENU_CATEGORY("System");
   MENU_ENTRY(SETTINGS_SAVE_DEBUG_LOG, SETTINGS_VIEW_SAVE_DEBUG_LOG, "Enable debug log", "");
