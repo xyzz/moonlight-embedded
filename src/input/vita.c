@@ -79,6 +79,7 @@ typedef struct TouchData {
 #define lerp(value, from_max, to_max) ((((value*10) * (to_max*10))/(from_max*10))/10)
 
 double mouse_multiplier;
+bool drag_active = false;
 
 #define MOUSE_ACTION_DELAY 100000 // 100ms
 
@@ -396,6 +397,7 @@ static inline void vitainput_process(void) {
           is_old_pressed(INPUT_TYPE_TOUCHSCREEN | TOUCHSEC_SPECIAL_SE));
 
   // mouse
+  bool new_drag_status = touch.finger == 3;
   switch (front_state) {
     case NO_TOUCH_ACTION:
       if (touch.finger > 0) {
@@ -434,19 +436,23 @@ static inline void vitainput_process(void) {
       front_state = ON_SCREEN_SWIPE;
       break;
     case ON_SCREEN_SWIPE:
-      if (touch.finger > 0) {
-        switch (touch.finger) {
-          case 1:
-            move_mouse(swipe, touch);
-            break;
-          case 2:
-            move_wheel(swipe, touch);
-            break;
-        }
-        memcpy(&swipe, &touch, sizeof(swipe));
-      } else {
-        front_state = NO_TOUCH_ACTION;
+      if (drag_active != new_drag_status) {
+        mouse_click(1, new_drag_status);
+        drag_active = new_drag_status;
       }
+      switch (touch.finger) {
+        case 1:
+        case 3:
+          move_mouse(swipe, touch);
+          break;
+        case 2:
+          move_wheel(swipe, touch);
+          break;
+        default:
+          front_state = NO_TOUCH_ACTION;
+          break;
+      }
+      memcpy(&swipe, &touch, sizeof(swipe));
       break;
   }
 
