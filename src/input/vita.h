@@ -17,7 +17,7 @@
  * along with Moonlight; if not, see <http://www.gnu.org/licenses/>.
  */
 
-enum {
+typedef enum {
   NO_TOUCH_ACTION = 0,
   ON_SCREEN_TOUCH,
   SCREEN_TAP,
@@ -25,7 +25,7 @@ enum {
   ON_SCREEN_SWIPE
 } TouchScreenState;
 
-enum {
+typedef enum {
   TOUCHSEC_NORTHWEST  = 0x1,
   TOUCHSEC_NORTHEAST  = 0x2,
   TOUCHSEC_SOUTHWEST  = 0x4,
@@ -36,7 +36,7 @@ enum {
   TOUCHSEC_SPECIAL_SE = 0x80,
 } TouchScreenSection;
 
-enum {
+typedef enum {
   LEFTX,
   LEFTY,
   RIGHTX,
