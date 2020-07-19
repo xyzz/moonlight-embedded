@@ -200,7 +200,7 @@ typedef enum {
 
 
 /**
- * On component creation the user can set flags to control the 
+ * On component creation the user can set flags to control the
  * creation of that component.
  ***********************************************************/
 typedef enum {
@@ -233,9 +233,9 @@ typedef enum {
 
    ILCLIENT_OUTPUT_ZERO_BUFFERS   = 0x10 /**< All output ports will have
                                             nBufferCountActual set to zero,
-                                            if supported by the component. */                                            
+                                            if supported by the component. */
 } ILCLIENT_CREATE_FLAGS_T;
-  
+
 
 /**
  * \brief This structure represents a tunnel in the OpenMAX IL API.
@@ -374,8 +374,8 @@ VCHPRE_ void VCHPOST_ ilclient_set_error_callback(ILCLIENT_T *handle,
  *
  * @return void
  ***********************************************************/
-VCHPRE_ void VCHPOST_ ilclient_set_configchanged_callback(ILCLIENT_T *handle, 
-                                                          ILCLIENT_CALLBACK_T func, 
+VCHPRE_ void VCHPOST_ ilclient_set_configchanged_callback(ILCLIENT_T *handle,
+                                                          ILCLIENT_CALLBACK_T func,
                                                           void *userdata);
 
 
@@ -428,7 +428,7 @@ VCHPRE_ void VCHPOST_ ilclient_set_empty_buffer_done_callback(ILCLIENT_T *handle
 
 /**
  * Components are created using the <DFN>ilclient_create_component()</DFN>
- * function.  
+ * function.
  *
  * @param handle The client handle
  *
@@ -442,7 +442,7 @@ VCHPRE_ void VCHPOST_ ilclient_set_empty_buffer_done_callback(ILCLIENT_T *handle
  * component.
  *
  * @param flags The client can specify some creation behaviour by using
- * the <DFN>flags</DFN> field.  The meaning of each flag is defined 
+ * the <DFN>flags</DFN> field.  The meaning of each flag is defined
  * by the <DFN>ILCLIENT_CREATE_FLAGS_T</DFN> type.
  *
  * @return 0 on success, -1 on failure
@@ -460,7 +460,7 @@ VCHPRE_ int VCHPOST_ ilclient_create_component(ILCLIENT_T *handle,
  *
  * @param list A null-terminated list of component pointers to be
  * deallocated.
- * 
+ *
  * @return void
  ***********************************************************/
 VCHPRE_ void VCHPOST_ ilclient_cleanup_components(COMPONENT_T *list[]);
@@ -486,7 +486,7 @@ VCHPRE_ int VCHPOST_ ilclient_change_component_state(COMPONENT_T *comp,
 
 /**
  * The <DFN>ilclient_state_transition()</DFN> function transitions a set of
- * components that need to perform a simultaneous state transition; 
+ * components that need to perform a simultaneous state transition;
  * for example, when two components are tunnelled and the buffer
  * supplier port needs to allocate and pass buffers to a non-supplier
  * port.  All components are sent a command to change state, then the
@@ -714,7 +714,7 @@ VCHPRE_ void VCHPOST_ ilclient_flush_tunnels(TUNNEL_T *tunnel,
  * where for both calls the destination component is <DFN>NULL</DFN> and the
  * destination port is zero.  The VMCSX IL implementation requires
  * that all tunnels are torn down in this manner before components are
- * freed. 
+ * freed.
  *
  * @param tunnels List of tunnels to teardown.  The list must be
  * terminated with a tunnel structure with <DFN>NULL</DFN> component entries.
@@ -863,9 +863,9 @@ VCHPRE_ int VCHPOST_ ilclient_wait_for_event(COMPONENT_T *comp,
 /**
  * The <DFN>ilclient_wait_for_command_complete()</DFN> function waits
  * for a message from a component that indicates that the command
- * has completed.  This is either a command success message, or an 
+ * has completed.  This is either a command success message, or an
  * error message that signals the completion of an event.
- * 
+ *
  * @param comp The component currently processing a command.
  *
  * @param command The command being processed.  This must be either
@@ -894,7 +894,7 @@ VCHPRE_ int VCHPOST_ ilclient_wait_for_command_complete(COMPONENT_T *comp,
  * enable a port, or change state to <DFN>OMX_StateIdle</DFN>.  If the
  * other component is the buffer supplier and reports an error, then
  * it will not allocate buffers, so our first component may stall.
- * 
+ *
  * @param comp The component currently processing a command.
  *
  * @param command The command being processed.  This must be either
@@ -918,15 +918,15 @@ VCHPRE_ int VCHPOST_ ilclient_wait_for_command_complete_dual(COMPONENT_T *comp,
                                                              OMX_COMMANDTYPE command,
                                                              OMX_U32 nData2,
                                                              COMPONENT_T *related);
-                                                             
+
 
 /**
- * The <DFN>ilclient_debug_output()</DFN> function adds a message to a 
+ * The <DFN>ilclient_debug_output()</DFN> function adds a message to a
  * host-specific debug display.  For a local VideoCore host the message is
  * added to the internal message log.  For a Win32 host the message is
  * printed to the debug display.  This function should be customised
  * when IL client is ported to another platform.
- * 
+ *
  * @param format A message to add, together with the variable
  * argument list similar to <DFN>printf</DFN> and other standard C functions.
  *

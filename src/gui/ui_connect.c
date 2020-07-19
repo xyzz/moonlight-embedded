@@ -486,7 +486,7 @@ void ui_connect_paired_device(device_info_t *info) {
   }
   info->prefer_external = addr == info->external;
   save_device_info(info);
-  
+
   if (addr == NULL) {
     display_error("Can't connect to server\n%s", info->name);
     return;

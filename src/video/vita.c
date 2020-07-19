@@ -495,11 +495,11 @@ static int vita_submit_decode_unit(PDECODE_UNIT decodeUnit) {
       need_drop--;
     } else {
       vita2d_start_drawing();
-      
+
       draw_streaming(frame_texture);
       draw_fps();
       draw_indicators();
-      
+
       vita2d_end_drawing();
 
       vita2d_wait_rendering_done();

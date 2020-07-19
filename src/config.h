@@ -23,7 +23,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include <psp2/ctrl.h> 
+#include <psp2/ctrl.h>
 
 #define MAX_INPUTS 6
 

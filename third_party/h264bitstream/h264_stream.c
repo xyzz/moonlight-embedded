@@ -1,21 +1,21 @@
-/* 
+/*
  * h264bitstream - a library for reading and writing H.264 video
  * Copyright (C) 2005-2007 Auroras Entertainment, LLC
  * Copyright (C) 2008-2011 Avail-TVN
  * Copyright (C) 2012 Alex Izvorski
  *
  * Written by Alex Izvorski <aizvorski@gmail.com> and Alex Giladi <alex.giladi@gmail.com>
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -34,9 +34,9 @@ FILE* h264_dbgfile = NULL;
 
 #define printf(...) fprintf((h264_dbgfile == NULL ? stdout : h264_dbgfile), __VA_ARGS__)
 
-/** 
- Calculate the log base 2 of the argument, rounded up. 
- Zero or negative arguments return zero 
+/**
+ Calculate the log base 2 of the argument, rounded up.
+ Zero or negative arguments return zero
  Idea from http://www.southwindsgames.com/blog/2009/01/19/fast-integer-log2-function-in-cc/
  */
 int intlog2(int x)
@@ -89,7 +89,7 @@ int _read_ff_coded_number(bs_t* b)
 {
     int n1 = 0;
     int n2;
-    do 
+    do
     {
         n2 = bs_read_u8(b);
         n1 += n2;
@@ -177,7 +177,7 @@ int read_nal_unit(h264_stream_t* h, uint8_t* buf, int size)
     switch ( nal->nal_unit_type )
     {
         case NAL_UNIT_TYPE_CODED_SLICE_IDR:
-        case NAL_UNIT_TYPE_CODED_SLICE_NON_IDR:  
+        case NAL_UNIT_TYPE_CODED_SLICE_NON_IDR:
         case NAL_UNIT_TYPE_CODED_SLICE_AUX:
             read_slice_layer_rbsp(h, b);
             break;
@@ -188,31 +188,31 @@ int read_nal_unit(h264_stream_t* h, uint8_t* buf, int size)
             break;
 #endif
 
-        case NAL_UNIT_TYPE_SPS: 
-            read_seq_parameter_set_rbsp(h, b); 
+        case NAL_UNIT_TYPE_SPS:
+            read_seq_parameter_set_rbsp(h, b);
             break;
 
-        case NAL_UNIT_TYPE_PPS:   
+        case NAL_UNIT_TYPE_PPS:
             read_pic_parameter_set_rbsp(h, b);
             break;
 
-        case NAL_UNIT_TYPE_AUD:     
-            read_access_unit_delimiter_rbsp(h, b); 
+        case NAL_UNIT_TYPE_AUD:
+            read_access_unit_delimiter_rbsp(h, b);
             break;
 
-        case NAL_UNIT_TYPE_END_OF_SEQUENCE: 
+        case NAL_UNIT_TYPE_END_OF_SEQUENCE:
             read_end_of_seq_rbsp(h, b);
             break;
 
-        case NAL_UNIT_TYPE_END_OF_STREAM: 
+        case NAL_UNIT_TYPE_END_OF_STREAM:
             read_end_of_stream_rbsp(h, b);
             break;
 
         case NAL_UNIT_TYPE_FILLER:
         case NAL_UNIT_TYPE_SPS_EXT:
         case NAL_UNIT_TYPE_UNSPECIFIED:
-        case NAL_UNIT_TYPE_CODED_SLICE_DATA_PARTITION_A:  
-        case NAL_UNIT_TYPE_CODED_SLICE_DATA_PARTITION_B: 
+        case NAL_UNIT_TYPE_CODED_SLICE_DATA_PARTITION_A:
+        case NAL_UNIT_TYPE_CODED_SLICE_DATA_PARTITION_B:
         case NAL_UNIT_TYPE_CODED_SLICE_DATA_PARTITION_C:
         default:
             return -1;
@@ -246,9 +246,9 @@ void read_seq_parameter_set_rbsp(h264_stream_t* h, bs_t* b)
     if( 1 )
     {
         memset(sps, 0, sizeof(sps_t));
-        sps->chroma_format_idc = 1; 
+        sps->chroma_format_idc = 1;
     }
- 
+
     sps->profile_idc = bs_read_u8(b);
     sps->constraint_set0_flag = bs_read_u1(b);
     sps->constraint_set1_flag = bs_read_u1(b);
@@ -601,7 +601,7 @@ void read_sei_rbsp(h264_stream_t* h, bs_t* b)
     {
         sei_free(h->seis[i]);
     }
-    
+
     h->num_seis = 0;
     do {
         h->num_seis++;
@@ -678,10 +678,10 @@ void read_slice_layer_rbsp(h264_stream_t* h,  bs_t* b)
 
     if ( slice_data != NULL )
     {
-        if ( slice_data->rbsp_buf != NULL ) free( slice_data->rbsp_buf ); 
+        if ( slice_data->rbsp_buf != NULL ) free( slice_data->rbsp_buf );
         uint8_t *sptr = b->p + (!!b->bits_left); // CABAC-specific: skip alignment bits, if there are any
         slice_data->rbsp_size = b->end - sptr;
-        
+
         slice_data->rbsp_buf = (uint8_t*)malloc(slice_data->rbsp_size);
         memcpy( slice_data->rbsp_buf, sptr, slice_data->rbsp_size );
         // ugly hack: since next NALU starts at byte border, we are going to be padded by trailing_bits;
@@ -1064,7 +1064,7 @@ int write_nal_unit(h264_stream_t* h, uint8_t* buf, int size)
     switch ( nal->nal_unit_type )
     {
         case NAL_UNIT_TYPE_CODED_SLICE_IDR:
-        case NAL_UNIT_TYPE_CODED_SLICE_NON_IDR:  
+        case NAL_UNIT_TYPE_CODED_SLICE_NON_IDR:
         case NAL_UNIT_TYPE_CODED_SLICE_AUX:
             write_slice_layer_rbsp(h, b);
             break;
@@ -1075,31 +1075,31 @@ int write_nal_unit(h264_stream_t* h, uint8_t* buf, int size)
             break;
 #endif
 
-        case NAL_UNIT_TYPE_SPS: 
-            write_seq_parameter_set_rbsp(h, b); 
+        case NAL_UNIT_TYPE_SPS:
+            write_seq_parameter_set_rbsp(h, b);
             break;
 
-        case NAL_UNIT_TYPE_PPS:   
+        case NAL_UNIT_TYPE_PPS:
             write_pic_parameter_set_rbsp(h, b);
             break;
 
-        case NAL_UNIT_TYPE_AUD:     
-            write_access_unit_delimiter_rbsp(h, b); 
+        case NAL_UNIT_TYPE_AUD:
+            write_access_unit_delimiter_rbsp(h, b);
             break;
 
-        case NAL_UNIT_TYPE_END_OF_SEQUENCE: 
+        case NAL_UNIT_TYPE_END_OF_SEQUENCE:
             write_end_of_seq_rbsp(h, b);
             break;
 
-        case NAL_UNIT_TYPE_END_OF_STREAM: 
+        case NAL_UNIT_TYPE_END_OF_STREAM:
             write_end_of_stream_rbsp(h, b);
             break;
 
         case NAL_UNIT_TYPE_FILLER:
         case NAL_UNIT_TYPE_SPS_EXT:
         case NAL_UNIT_TYPE_UNSPECIFIED:
-        case NAL_UNIT_TYPE_CODED_SLICE_DATA_PARTITION_A:  
-        case NAL_UNIT_TYPE_CODED_SLICE_DATA_PARTITION_B: 
+        case NAL_UNIT_TYPE_CODED_SLICE_DATA_PARTITION_A:
+        case NAL_UNIT_TYPE_CODED_SLICE_DATA_PARTITION_B:
         case NAL_UNIT_TYPE_CODED_SLICE_DATA_PARTITION_C:
         default:
             return -1;
@@ -1133,9 +1133,9 @@ void write_seq_parameter_set_rbsp(h264_stream_t* h, bs_t* b)
     if( 0 )
     {
         memset(sps, 0, sizeof(sps_t));
-        sps->chroma_format_idc = 1; 
+        sps->chroma_format_idc = 1;
     }
- 
+
     bs_write_u8(b, sps->profile_idc);
     bs_write_u1(b, sps->constraint_set0_flag);
     bs_write_u1(b, sps->constraint_set1_flag);
@@ -1488,7 +1488,7 @@ void write_sei_rbsp(h264_stream_t* h, bs_t* b)
     {
         sei_free(h->seis[i]);
     }
-    
+
     h->num_seis = 0;
     do {
         h->num_seis++;
@@ -1565,10 +1565,10 @@ void write_slice_layer_rbsp(h264_stream_t* h,  bs_t* b)
 
     if ( slice_data != NULL )
     {
-        if ( slice_data->rbsp_buf != NULL ) free( slice_data->rbsp_buf ); 
+        if ( slice_data->rbsp_buf != NULL ) free( slice_data->rbsp_buf );
         uint8_t *sptr = b->p + (!!b->bits_left); // CABAC-specific: skip alignment bits, if there are any
         slice_data->rbsp_size = b->end - sptr;
-        
+
         slice_data->rbsp_buf = (uint8_t*)malloc(slice_data->rbsp_size);
         memcpy( slice_data->rbsp_buf, sptr, slice_data->rbsp_size );
         // ugly hack: since next NALU starts at byte border, we are going to be padded by trailing_bits;
@@ -1944,14 +1944,14 @@ int read_debug_nal_unit(h264_stream_t* h, uint8_t* buf, int size)
     }
 
     bs_t* b = bs_new(rbsp_buf, rbsp_size);
-    printf("%d.%d: ", b->p - b->start, b->bits_left); int forbidden_zero_bit = bs_read_u(b, 1); printf("forbidden_zero_bit: %d \n", forbidden_zero_bit); 
-    printf("%d.%d: ", b->p - b->start, b->bits_left); nal->nal_ref_idc = bs_read_u(b, 2); printf("nal->nal_ref_idc: %d \n", nal->nal_ref_idc); 
-    printf("%d.%d: ", b->p - b->start, b->bits_left); nal->nal_unit_type = bs_read_u(b, 5); printf("nal->nal_unit_type: %d \n", nal->nal_unit_type); 
+    printf("%d.%d: ", b->p - b->start, b->bits_left); int forbidden_zero_bit = bs_read_u(b, 1); printf("forbidden_zero_bit: %d \n", forbidden_zero_bit);
+    printf("%d.%d: ", b->p - b->start, b->bits_left); nal->nal_ref_idc = bs_read_u(b, 2); printf("nal->nal_ref_idc: %d \n", nal->nal_ref_idc);
+    printf("%d.%d: ", b->p - b->start, b->bits_left); nal->nal_unit_type = bs_read_u(b, 5); printf("nal->nal_unit_type: %d \n", nal->nal_unit_type);
 
     switch ( nal->nal_unit_type )
     {
         case NAL_UNIT_TYPE_CODED_SLICE_IDR:
-        case NAL_UNIT_TYPE_CODED_SLICE_NON_IDR:  
+        case NAL_UNIT_TYPE_CODED_SLICE_NON_IDR:
         case NAL_UNIT_TYPE_CODED_SLICE_AUX:
             read_debug_slice_layer_rbsp(h, b);
             break;
@@ -1962,31 +1962,31 @@ int read_debug_nal_unit(h264_stream_t* h, uint8_t* buf, int size)
             break;
 #endif
 
-        case NAL_UNIT_TYPE_SPS: 
-            read_debug_seq_parameter_set_rbsp(h, b); 
+        case NAL_UNIT_TYPE_SPS:
+            read_debug_seq_parameter_set_rbsp(h, b);
             break;
 
-        case NAL_UNIT_TYPE_PPS:   
+        case NAL_UNIT_TYPE_PPS:
             read_debug_pic_parameter_set_rbsp(h, b);
             break;
 
-        case NAL_UNIT_TYPE_AUD:     
-            read_debug_access_unit_delimiter_rbsp(h, b); 
+        case NAL_UNIT_TYPE_AUD:
+            read_debug_access_unit_delimiter_rbsp(h, b);
             break;
 
-        case NAL_UNIT_TYPE_END_OF_SEQUENCE: 
+        case NAL_UNIT_TYPE_END_OF_SEQUENCE:
             read_debug_end_of_seq_rbsp(h, b);
             break;
 
-        case NAL_UNIT_TYPE_END_OF_STREAM: 
+        case NAL_UNIT_TYPE_END_OF_STREAM:
             read_debug_end_of_stream_rbsp(h, b);
             break;
 
         case NAL_UNIT_TYPE_FILLER:
         case NAL_UNIT_TYPE_SPS_EXT:
         case NAL_UNIT_TYPE_UNSPECIFIED:
-        case NAL_UNIT_TYPE_CODED_SLICE_DATA_PARTITION_A:  
-        case NAL_UNIT_TYPE_CODED_SLICE_DATA_PARTITION_B: 
+        case NAL_UNIT_TYPE_CODED_SLICE_DATA_PARTITION_A:
+        case NAL_UNIT_TYPE_CODED_SLICE_DATA_PARTITION_B:
         case NAL_UNIT_TYPE_CODED_SLICE_DATA_PARTITION_C:
         default:
             return -1;
@@ -2020,37 +2020,37 @@ void read_debug_seq_parameter_set_rbsp(h264_stream_t* h, bs_t* b)
     if( 1 )
     {
         memset(sps, 0, sizeof(sps_t));
-        sps->chroma_format_idc = 1; 
+        sps->chroma_format_idc = 1;
     }
- 
-    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->profile_idc = bs_read_u8(b); printf("sps->profile_idc: %d \n", sps->profile_idc); 
-    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->constraint_set0_flag = bs_read_u1(b); printf("sps->constraint_set0_flag: %d \n", sps->constraint_set0_flag); 
-    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->constraint_set1_flag = bs_read_u1(b); printf("sps->constraint_set1_flag: %d \n", sps->constraint_set1_flag); 
-    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->constraint_set2_flag = bs_read_u1(b); printf("sps->constraint_set2_flag: %d \n", sps->constraint_set2_flag); 
-    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->constraint_set3_flag = bs_read_u1(b); printf("sps->constraint_set3_flag: %d \n", sps->constraint_set3_flag); 
-    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->constraint_set4_flag = bs_read_u1(b); printf("sps->constraint_set4_flag: %d \n", sps->constraint_set4_flag); 
-    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->constraint_set5_flag = bs_read_u1(b); printf("sps->constraint_set5_flag: %d \n", sps->constraint_set5_flag); 
-    printf("%d.%d: ", b->p - b->start, b->bits_left); int reserved_zero_2bits = bs_read_u(b, 2); printf("reserved_zero_2bits: %d \n", reserved_zero_2bits); 
-    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->level_idc = bs_read_u8(b); printf("sps->level_idc: %d \n", sps->level_idc); 
-    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->seq_parameter_set_id = bs_read_ue(b); printf("sps->seq_parameter_set_id: %d \n", sps->seq_parameter_set_id); 
+
+    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->profile_idc = bs_read_u8(b); printf("sps->profile_idc: %d \n", sps->profile_idc);
+    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->constraint_set0_flag = bs_read_u1(b); printf("sps->constraint_set0_flag: %d \n", sps->constraint_set0_flag);
+    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->constraint_set1_flag = bs_read_u1(b); printf("sps->constraint_set1_flag: %d \n", sps->constraint_set1_flag);
+    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->constraint_set2_flag = bs_read_u1(b); printf("sps->constraint_set2_flag: %d \n", sps->constraint_set2_flag);
+    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->constraint_set3_flag = bs_read_u1(b); printf("sps->constraint_set3_flag: %d \n", sps->constraint_set3_flag);
+    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->constraint_set4_flag = bs_read_u1(b); printf("sps->constraint_set4_flag: %d \n", sps->constraint_set4_flag);
+    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->constraint_set5_flag = bs_read_u1(b); printf("sps->constraint_set5_flag: %d \n", sps->constraint_set5_flag);
+    printf("%d.%d: ", b->p - b->start, b->bits_left); int reserved_zero_2bits = bs_read_u(b, 2); printf("reserved_zero_2bits: %d \n", reserved_zero_2bits);
+    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->level_idc = bs_read_u8(b); printf("sps->level_idc: %d \n", sps->level_idc);
+    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->seq_parameter_set_id = bs_read_ue(b); printf("sps->seq_parameter_set_id: %d \n", sps->seq_parameter_set_id);
 
     if( sps->profile_idc == 100 || sps->profile_idc == 110 ||
         sps->profile_idc == 122 || sps->profile_idc == 144 )
     {
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->chroma_format_idc = bs_read_ue(b); printf("sps->chroma_format_idc: %d \n", sps->chroma_format_idc); 
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->chroma_format_idc = bs_read_ue(b); printf("sps->chroma_format_idc: %d \n", sps->chroma_format_idc);
         if( sps->chroma_format_idc == 3 )
         {
-            printf("%d.%d: ", b->p - b->start, b->bits_left); sps->residual_colour_transform_flag = bs_read_u1(b); printf("sps->residual_colour_transform_flag: %d \n", sps->residual_colour_transform_flag); 
+            printf("%d.%d: ", b->p - b->start, b->bits_left); sps->residual_colour_transform_flag = bs_read_u1(b); printf("sps->residual_colour_transform_flag: %d \n", sps->residual_colour_transform_flag);
         }
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->bit_depth_luma_minus8 = bs_read_ue(b); printf("sps->bit_depth_luma_minus8: %d \n", sps->bit_depth_luma_minus8); 
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->bit_depth_chroma_minus8 = bs_read_ue(b); printf("sps->bit_depth_chroma_minus8: %d \n", sps->bit_depth_chroma_minus8); 
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->qpprime_y_zero_transform_bypass_flag = bs_read_u1(b); printf("sps->qpprime_y_zero_transform_bypass_flag: %d \n", sps->qpprime_y_zero_transform_bypass_flag); 
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->seq_scaling_matrix_present_flag = bs_read_u1(b); printf("sps->seq_scaling_matrix_present_flag: %d \n", sps->seq_scaling_matrix_present_flag); 
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->bit_depth_luma_minus8 = bs_read_ue(b); printf("sps->bit_depth_luma_minus8: %d \n", sps->bit_depth_luma_minus8);
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->bit_depth_chroma_minus8 = bs_read_ue(b); printf("sps->bit_depth_chroma_minus8: %d \n", sps->bit_depth_chroma_minus8);
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->qpprime_y_zero_transform_bypass_flag = bs_read_u1(b); printf("sps->qpprime_y_zero_transform_bypass_flag: %d \n", sps->qpprime_y_zero_transform_bypass_flag);
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->seq_scaling_matrix_present_flag = bs_read_u1(b); printf("sps->seq_scaling_matrix_present_flag: %d \n", sps->seq_scaling_matrix_present_flag);
         if( sps->seq_scaling_matrix_present_flag )
         {
             for( i = 0; i < 8; i++ )
             {
-                printf("%d.%d: ", b->p - b->start, b->bits_left); sps->seq_scaling_list_present_flag[ i ] = bs_read_u1(b); printf("sps->seq_scaling_list_present_flag[ i ]: %d \n", sps->seq_scaling_list_present_flag[ i ]); 
+                printf("%d.%d: ", b->p - b->start, b->bits_left); sps->seq_scaling_list_present_flag[ i ] = bs_read_u1(b); printf("sps->seq_scaling_list_present_flag[ i ]: %d \n", sps->seq_scaling_list_present_flag[ i ]);
                 if( sps->seq_scaling_list_present_flag[ i ] )
                 {
                     if( i < 6 )
@@ -2067,42 +2067,42 @@ void read_debug_seq_parameter_set_rbsp(h264_stream_t* h, bs_t* b)
             }
         }
     }
-    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->log2_max_frame_num_minus4 = bs_read_ue(b); printf("sps->log2_max_frame_num_minus4: %d \n", sps->log2_max_frame_num_minus4); 
-    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->pic_order_cnt_type = bs_read_ue(b); printf("sps->pic_order_cnt_type: %d \n", sps->pic_order_cnt_type); 
+    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->log2_max_frame_num_minus4 = bs_read_ue(b); printf("sps->log2_max_frame_num_minus4: %d \n", sps->log2_max_frame_num_minus4);
+    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->pic_order_cnt_type = bs_read_ue(b); printf("sps->pic_order_cnt_type: %d \n", sps->pic_order_cnt_type);
     if( sps->pic_order_cnt_type == 0 )
     {
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->log2_max_pic_order_cnt_lsb_minus4 = bs_read_ue(b); printf("sps->log2_max_pic_order_cnt_lsb_minus4: %d \n", sps->log2_max_pic_order_cnt_lsb_minus4); 
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->log2_max_pic_order_cnt_lsb_minus4 = bs_read_ue(b); printf("sps->log2_max_pic_order_cnt_lsb_minus4: %d \n", sps->log2_max_pic_order_cnt_lsb_minus4);
     }
     else if( sps->pic_order_cnt_type == 1 )
     {
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->delta_pic_order_always_zero_flag = bs_read_u1(b); printf("sps->delta_pic_order_always_zero_flag: %d \n", sps->delta_pic_order_always_zero_flag); 
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->offset_for_non_ref_pic = bs_read_se(b); printf("sps->offset_for_non_ref_pic: %d \n", sps->offset_for_non_ref_pic); 
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->offset_for_top_to_bottom_field = bs_read_se(b); printf("sps->offset_for_top_to_bottom_field: %d \n", sps->offset_for_top_to_bottom_field); 
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->num_ref_frames_in_pic_order_cnt_cycle = bs_read_ue(b); printf("sps->num_ref_frames_in_pic_order_cnt_cycle: %d \n", sps->num_ref_frames_in_pic_order_cnt_cycle); 
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->delta_pic_order_always_zero_flag = bs_read_u1(b); printf("sps->delta_pic_order_always_zero_flag: %d \n", sps->delta_pic_order_always_zero_flag);
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->offset_for_non_ref_pic = bs_read_se(b); printf("sps->offset_for_non_ref_pic: %d \n", sps->offset_for_non_ref_pic);
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->offset_for_top_to_bottom_field = bs_read_se(b); printf("sps->offset_for_top_to_bottom_field: %d \n", sps->offset_for_top_to_bottom_field);
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->num_ref_frames_in_pic_order_cnt_cycle = bs_read_ue(b); printf("sps->num_ref_frames_in_pic_order_cnt_cycle: %d \n", sps->num_ref_frames_in_pic_order_cnt_cycle);
         for( i = 0; i < sps->num_ref_frames_in_pic_order_cnt_cycle; i++ )
         {
-            printf("%d.%d: ", b->p - b->start, b->bits_left); sps->offset_for_ref_frame[ i ] = bs_read_se(b); printf("sps->offset_for_ref_frame[ i ]: %d \n", sps->offset_for_ref_frame[ i ]); 
+            printf("%d.%d: ", b->p - b->start, b->bits_left); sps->offset_for_ref_frame[ i ] = bs_read_se(b); printf("sps->offset_for_ref_frame[ i ]: %d \n", sps->offset_for_ref_frame[ i ]);
         }
     }
-    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->num_ref_frames = bs_read_ue(b); printf("sps->num_ref_frames: %d \n", sps->num_ref_frames); 
-    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->gaps_in_frame_num_value_allowed_flag = bs_read_u1(b); printf("sps->gaps_in_frame_num_value_allowed_flag: %d \n", sps->gaps_in_frame_num_value_allowed_flag); 
-    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->pic_width_in_mbs_minus1 = bs_read_ue(b); printf("sps->pic_width_in_mbs_minus1: %d \n", sps->pic_width_in_mbs_minus1); 
-    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->pic_height_in_map_units_minus1 = bs_read_ue(b); printf("sps->pic_height_in_map_units_minus1: %d \n", sps->pic_height_in_map_units_minus1); 
-    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->frame_mbs_only_flag = bs_read_u1(b); printf("sps->frame_mbs_only_flag: %d \n", sps->frame_mbs_only_flag); 
+    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->num_ref_frames = bs_read_ue(b); printf("sps->num_ref_frames: %d \n", sps->num_ref_frames);
+    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->gaps_in_frame_num_value_allowed_flag = bs_read_u1(b); printf("sps->gaps_in_frame_num_value_allowed_flag: %d \n", sps->gaps_in_frame_num_value_allowed_flag);
+    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->pic_width_in_mbs_minus1 = bs_read_ue(b); printf("sps->pic_width_in_mbs_minus1: %d \n", sps->pic_width_in_mbs_minus1);
+    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->pic_height_in_map_units_minus1 = bs_read_ue(b); printf("sps->pic_height_in_map_units_minus1: %d \n", sps->pic_height_in_map_units_minus1);
+    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->frame_mbs_only_flag = bs_read_u1(b); printf("sps->frame_mbs_only_flag: %d \n", sps->frame_mbs_only_flag);
     if( !sps->frame_mbs_only_flag )
     {
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->mb_adaptive_frame_field_flag = bs_read_u1(b); printf("sps->mb_adaptive_frame_field_flag: %d \n", sps->mb_adaptive_frame_field_flag); 
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->mb_adaptive_frame_field_flag = bs_read_u1(b); printf("sps->mb_adaptive_frame_field_flag: %d \n", sps->mb_adaptive_frame_field_flag);
     }
-    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->direct_8x8_inference_flag = bs_read_u1(b); printf("sps->direct_8x8_inference_flag: %d \n", sps->direct_8x8_inference_flag); 
-    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->frame_cropping_flag = bs_read_u1(b); printf("sps->frame_cropping_flag: %d \n", sps->frame_cropping_flag); 
+    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->direct_8x8_inference_flag = bs_read_u1(b); printf("sps->direct_8x8_inference_flag: %d \n", sps->direct_8x8_inference_flag);
+    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->frame_cropping_flag = bs_read_u1(b); printf("sps->frame_cropping_flag: %d \n", sps->frame_cropping_flag);
     if( sps->frame_cropping_flag )
     {
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->frame_crop_left_offset = bs_read_ue(b); printf("sps->frame_crop_left_offset: %d \n", sps->frame_crop_left_offset); 
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->frame_crop_right_offset = bs_read_ue(b); printf("sps->frame_crop_right_offset: %d \n", sps->frame_crop_right_offset); 
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->frame_crop_top_offset = bs_read_ue(b); printf("sps->frame_crop_top_offset: %d \n", sps->frame_crop_top_offset); 
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->frame_crop_bottom_offset = bs_read_ue(b); printf("sps->frame_crop_bottom_offset: %d \n", sps->frame_crop_bottom_offset); 
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->frame_crop_left_offset = bs_read_ue(b); printf("sps->frame_crop_left_offset: %d \n", sps->frame_crop_left_offset);
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->frame_crop_right_offset = bs_read_ue(b); printf("sps->frame_crop_right_offset: %d \n", sps->frame_crop_right_offset);
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->frame_crop_top_offset = bs_read_ue(b); printf("sps->frame_crop_top_offset: %d \n", sps->frame_crop_top_offset);
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->frame_crop_bottom_offset = bs_read_ue(b); printf("sps->frame_crop_bottom_offset: %d \n", sps->frame_crop_bottom_offset);
     }
-    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui_parameters_present_flag = bs_read_u1(b); printf("sps->vui_parameters_present_flag: %d \n", sps->vui_parameters_present_flag); 
+    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui_parameters_present_flag = bs_read_u1(b); printf("sps->vui_parameters_present_flag: %d \n", sps->vui_parameters_present_flag);
     if( sps->vui_parameters_present_flag )
     {
         read_debug_vui_parameters(h, b);
@@ -2134,7 +2134,7 @@ void read_debug_scaling_list(bs_t* b, int* scalingList, int sizeOfScalingList, i
                 delta_scale = (nextScale - lastScale) % 256 ;
             }
 
-            printf("%d.%d: ", b->p - b->start, b->bits_left); delta_scale = bs_read_se(b); printf("delta_scale: %d \n", delta_scale); 
+            printf("%d.%d: ", b->p - b->start, b->bits_left); delta_scale = bs_read_se(b); printf("delta_scale: %d \n", delta_scale);
 
             if( 1 )
             {
@@ -2155,72 +2155,72 @@ void read_debug_vui_parameters(h264_stream_t* h, bs_t* b)
 {
     sps_t* sps = h->sps;
 
-    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.aspect_ratio_info_present_flag = bs_read_u1(b); printf("sps->vui.aspect_ratio_info_present_flag: %d \n", sps->vui.aspect_ratio_info_present_flag); 
+    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.aspect_ratio_info_present_flag = bs_read_u1(b); printf("sps->vui.aspect_ratio_info_present_flag: %d \n", sps->vui.aspect_ratio_info_present_flag);
     if( sps->vui.aspect_ratio_info_present_flag )
     {
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.aspect_ratio_idc = bs_read_u8(b); printf("sps->vui.aspect_ratio_idc: %d \n", sps->vui.aspect_ratio_idc); 
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.aspect_ratio_idc = bs_read_u8(b); printf("sps->vui.aspect_ratio_idc: %d \n", sps->vui.aspect_ratio_idc);
         if( sps->vui.aspect_ratio_idc == SAR_Extended )
         {
-            printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.sar_width = bs_read_u(b, 16); printf("sps->vui.sar_width: %d \n", sps->vui.sar_width); 
-            printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.sar_height = bs_read_u(b, 16); printf("sps->vui.sar_height: %d \n", sps->vui.sar_height); 
+            printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.sar_width = bs_read_u(b, 16); printf("sps->vui.sar_width: %d \n", sps->vui.sar_width);
+            printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.sar_height = bs_read_u(b, 16); printf("sps->vui.sar_height: %d \n", sps->vui.sar_height);
         }
     }
-    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.overscan_info_present_flag = bs_read_u1(b); printf("sps->vui.overscan_info_present_flag: %d \n", sps->vui.overscan_info_present_flag); 
+    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.overscan_info_present_flag = bs_read_u1(b); printf("sps->vui.overscan_info_present_flag: %d \n", sps->vui.overscan_info_present_flag);
     if( sps->vui.overscan_info_present_flag )
     {
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.overscan_appropriate_flag = bs_read_u1(b); printf("sps->vui.overscan_appropriate_flag: %d \n", sps->vui.overscan_appropriate_flag); 
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.overscan_appropriate_flag = bs_read_u1(b); printf("sps->vui.overscan_appropriate_flag: %d \n", sps->vui.overscan_appropriate_flag);
     }
-    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.video_signal_type_present_flag = bs_read_u1(b); printf("sps->vui.video_signal_type_present_flag: %d \n", sps->vui.video_signal_type_present_flag); 
+    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.video_signal_type_present_flag = bs_read_u1(b); printf("sps->vui.video_signal_type_present_flag: %d \n", sps->vui.video_signal_type_present_flag);
     if( sps->vui.video_signal_type_present_flag )
     {
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.video_format = bs_read_u(b, 3); printf("sps->vui.video_format: %d \n", sps->vui.video_format); 
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.video_full_range_flag = bs_read_u1(b); printf("sps->vui.video_full_range_flag: %d \n", sps->vui.video_full_range_flag); 
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.colour_description_present_flag = bs_read_u1(b); printf("sps->vui.colour_description_present_flag: %d \n", sps->vui.colour_description_present_flag); 
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.video_format = bs_read_u(b, 3); printf("sps->vui.video_format: %d \n", sps->vui.video_format);
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.video_full_range_flag = bs_read_u1(b); printf("sps->vui.video_full_range_flag: %d \n", sps->vui.video_full_range_flag);
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.colour_description_present_flag = bs_read_u1(b); printf("sps->vui.colour_description_present_flag: %d \n", sps->vui.colour_description_present_flag);
         if( sps->vui.colour_description_present_flag )
         {
-            printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.colour_primaries = bs_read_u8(b); printf("sps->vui.colour_primaries: %d \n", sps->vui.colour_primaries); 
-            printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.transfer_characteristics = bs_read_u8(b); printf("sps->vui.transfer_characteristics: %d \n", sps->vui.transfer_characteristics); 
-            printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.matrix_coefficients = bs_read_u8(b); printf("sps->vui.matrix_coefficients: %d \n", sps->vui.matrix_coefficients); 
+            printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.colour_primaries = bs_read_u8(b); printf("sps->vui.colour_primaries: %d \n", sps->vui.colour_primaries);
+            printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.transfer_characteristics = bs_read_u8(b); printf("sps->vui.transfer_characteristics: %d \n", sps->vui.transfer_characteristics);
+            printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.matrix_coefficients = bs_read_u8(b); printf("sps->vui.matrix_coefficients: %d \n", sps->vui.matrix_coefficients);
         }
     }
-    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.chroma_loc_info_present_flag = bs_read_u1(b); printf("sps->vui.chroma_loc_info_present_flag: %d \n", sps->vui.chroma_loc_info_present_flag); 
+    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.chroma_loc_info_present_flag = bs_read_u1(b); printf("sps->vui.chroma_loc_info_present_flag: %d \n", sps->vui.chroma_loc_info_present_flag);
     if( sps->vui.chroma_loc_info_present_flag )
     {
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.chroma_sample_loc_type_top_field = bs_read_ue(b); printf("sps->vui.chroma_sample_loc_type_top_field: %d \n", sps->vui.chroma_sample_loc_type_top_field); 
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.chroma_sample_loc_type_bottom_field = bs_read_ue(b); printf("sps->vui.chroma_sample_loc_type_bottom_field: %d \n", sps->vui.chroma_sample_loc_type_bottom_field); 
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.chroma_sample_loc_type_top_field = bs_read_ue(b); printf("sps->vui.chroma_sample_loc_type_top_field: %d \n", sps->vui.chroma_sample_loc_type_top_field);
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.chroma_sample_loc_type_bottom_field = bs_read_ue(b); printf("sps->vui.chroma_sample_loc_type_bottom_field: %d \n", sps->vui.chroma_sample_loc_type_bottom_field);
     }
-    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.timing_info_present_flag = bs_read_u1(b); printf("sps->vui.timing_info_present_flag: %d \n", sps->vui.timing_info_present_flag); 
+    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.timing_info_present_flag = bs_read_u1(b); printf("sps->vui.timing_info_present_flag: %d \n", sps->vui.timing_info_present_flag);
     if( sps->vui.timing_info_present_flag )
     {
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.num_units_in_tick = bs_read_u(b, 32); printf("sps->vui.num_units_in_tick: %d \n", sps->vui.num_units_in_tick); 
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.time_scale = bs_read_u(b, 32); printf("sps->vui.time_scale: %d \n", sps->vui.time_scale); 
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.fixed_frame_rate_flag = bs_read_u1(b); printf("sps->vui.fixed_frame_rate_flag: %d \n", sps->vui.fixed_frame_rate_flag); 
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.num_units_in_tick = bs_read_u(b, 32); printf("sps->vui.num_units_in_tick: %d \n", sps->vui.num_units_in_tick);
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.time_scale = bs_read_u(b, 32); printf("sps->vui.time_scale: %d \n", sps->vui.time_scale);
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.fixed_frame_rate_flag = bs_read_u1(b); printf("sps->vui.fixed_frame_rate_flag: %d \n", sps->vui.fixed_frame_rate_flag);
     }
-    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.nal_hrd_parameters_present_flag = bs_read_u1(b); printf("sps->vui.nal_hrd_parameters_present_flag: %d \n", sps->vui.nal_hrd_parameters_present_flag); 
+    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.nal_hrd_parameters_present_flag = bs_read_u1(b); printf("sps->vui.nal_hrd_parameters_present_flag: %d \n", sps->vui.nal_hrd_parameters_present_flag);
     if( sps->vui.nal_hrd_parameters_present_flag )
     {
         read_debug_hrd_parameters(h, b);
     }
-    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.vcl_hrd_parameters_present_flag = bs_read_u1(b); printf("sps->vui.vcl_hrd_parameters_present_flag: %d \n", sps->vui.vcl_hrd_parameters_present_flag); 
+    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.vcl_hrd_parameters_present_flag = bs_read_u1(b); printf("sps->vui.vcl_hrd_parameters_present_flag: %d \n", sps->vui.vcl_hrd_parameters_present_flag);
     if( sps->vui.vcl_hrd_parameters_present_flag )
     {
         read_debug_hrd_parameters(h, b);
     }
     if( sps->vui.nal_hrd_parameters_present_flag || sps->vui.vcl_hrd_parameters_present_flag )
     {
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.low_delay_hrd_flag = bs_read_u1(b); printf("sps->vui.low_delay_hrd_flag: %d \n", sps->vui.low_delay_hrd_flag); 
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.low_delay_hrd_flag = bs_read_u1(b); printf("sps->vui.low_delay_hrd_flag: %d \n", sps->vui.low_delay_hrd_flag);
     }
-    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.pic_struct_present_flag = bs_read_u1(b); printf("sps->vui.pic_struct_present_flag: %d \n", sps->vui.pic_struct_present_flag); 
-    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.bitstream_restriction_flag = bs_read_u1(b); printf("sps->vui.bitstream_restriction_flag: %d \n", sps->vui.bitstream_restriction_flag); 
+    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.pic_struct_present_flag = bs_read_u1(b); printf("sps->vui.pic_struct_present_flag: %d \n", sps->vui.pic_struct_present_flag);
+    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.bitstream_restriction_flag = bs_read_u1(b); printf("sps->vui.bitstream_restriction_flag: %d \n", sps->vui.bitstream_restriction_flag);
     if( sps->vui.bitstream_restriction_flag )
     {
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.motion_vectors_over_pic_boundaries_flag = bs_read_u1(b); printf("sps->vui.motion_vectors_over_pic_boundaries_flag: %d \n", sps->vui.motion_vectors_over_pic_boundaries_flag); 
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.max_bytes_per_pic_denom = bs_read_ue(b); printf("sps->vui.max_bytes_per_pic_denom: %d \n", sps->vui.max_bytes_per_pic_denom); 
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.max_bits_per_mb_denom = bs_read_ue(b); printf("sps->vui.max_bits_per_mb_denom: %d \n", sps->vui.max_bits_per_mb_denom); 
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.log2_max_mv_length_horizontal = bs_read_ue(b); printf("sps->vui.log2_max_mv_length_horizontal: %d \n", sps->vui.log2_max_mv_length_horizontal); 
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.log2_max_mv_length_vertical = bs_read_ue(b); printf("sps->vui.log2_max_mv_length_vertical: %d \n", sps->vui.log2_max_mv_length_vertical); 
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.num_reorder_frames = bs_read_ue(b); printf("sps->vui.num_reorder_frames: %d \n", sps->vui.num_reorder_frames); 
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.max_dec_frame_buffering = bs_read_ue(b); printf("sps->vui.max_dec_frame_buffering: %d \n", sps->vui.max_dec_frame_buffering); 
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.motion_vectors_over_pic_boundaries_flag = bs_read_u1(b); printf("sps->vui.motion_vectors_over_pic_boundaries_flag: %d \n", sps->vui.motion_vectors_over_pic_boundaries_flag);
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.max_bytes_per_pic_denom = bs_read_ue(b); printf("sps->vui.max_bytes_per_pic_denom: %d \n", sps->vui.max_bytes_per_pic_denom);
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.max_bits_per_mb_denom = bs_read_ue(b); printf("sps->vui.max_bits_per_mb_denom: %d \n", sps->vui.max_bits_per_mb_denom);
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.log2_max_mv_length_horizontal = bs_read_ue(b); printf("sps->vui.log2_max_mv_length_horizontal: %d \n", sps->vui.log2_max_mv_length_horizontal);
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.log2_max_mv_length_vertical = bs_read_ue(b); printf("sps->vui.log2_max_mv_length_vertical: %d \n", sps->vui.log2_max_mv_length_vertical);
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.num_reorder_frames = bs_read_ue(b); printf("sps->vui.num_reorder_frames: %d \n", sps->vui.num_reorder_frames);
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->vui.max_dec_frame_buffering = bs_read_ue(b); printf("sps->vui.max_dec_frame_buffering: %d \n", sps->vui.max_dec_frame_buffering);
     }
 }
 
@@ -2230,19 +2230,19 @@ void read_debug_hrd_parameters(h264_stream_t* h, bs_t* b)
 {
     sps_t* sps = h->sps;
 
-    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->hrd.cpb_cnt_minus1 = bs_read_ue(b); printf("sps->hrd.cpb_cnt_minus1: %d \n", sps->hrd.cpb_cnt_minus1); 
-    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->hrd.bit_rate_scale = bs_read_u(b, 4); printf("sps->hrd.bit_rate_scale: %d \n", sps->hrd.bit_rate_scale); 
-    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->hrd.cpb_size_scale = bs_read_u(b, 4); printf("sps->hrd.cpb_size_scale: %d \n", sps->hrd.cpb_size_scale); 
+    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->hrd.cpb_cnt_minus1 = bs_read_ue(b); printf("sps->hrd.cpb_cnt_minus1: %d \n", sps->hrd.cpb_cnt_minus1);
+    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->hrd.bit_rate_scale = bs_read_u(b, 4); printf("sps->hrd.bit_rate_scale: %d \n", sps->hrd.bit_rate_scale);
+    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->hrd.cpb_size_scale = bs_read_u(b, 4); printf("sps->hrd.cpb_size_scale: %d \n", sps->hrd.cpb_size_scale);
     for( int SchedSelIdx = 0; SchedSelIdx <= sps->hrd.cpb_cnt_minus1; SchedSelIdx++ )
     {
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->hrd.bit_rate_value_minus1[ SchedSelIdx ] = bs_read_ue(b); printf("sps->hrd.bit_rate_value_minus1[ SchedSelIdx ]: %d \n", sps->hrd.bit_rate_value_minus1[ SchedSelIdx ]); 
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->hrd.cpb_size_value_minus1[ SchedSelIdx ] = bs_read_ue(b); printf("sps->hrd.cpb_size_value_minus1[ SchedSelIdx ]: %d \n", sps->hrd.cpb_size_value_minus1[ SchedSelIdx ]); 
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->hrd.cbr_flag[ SchedSelIdx ] = bs_read_u1(b); printf("sps->hrd.cbr_flag[ SchedSelIdx ]: %d \n", sps->hrd.cbr_flag[ SchedSelIdx ]); 
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->hrd.bit_rate_value_minus1[ SchedSelIdx ] = bs_read_ue(b); printf("sps->hrd.bit_rate_value_minus1[ SchedSelIdx ]: %d \n", sps->hrd.bit_rate_value_minus1[ SchedSelIdx ]);
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->hrd.cpb_size_value_minus1[ SchedSelIdx ] = bs_read_ue(b); printf("sps->hrd.cpb_size_value_minus1[ SchedSelIdx ]: %d \n", sps->hrd.cpb_size_value_minus1[ SchedSelIdx ]);
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sps->hrd.cbr_flag[ SchedSelIdx ] = bs_read_u1(b); printf("sps->hrd.cbr_flag[ SchedSelIdx ]: %d \n", sps->hrd.cbr_flag[ SchedSelIdx ]);
     }
-    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->hrd.initial_cpb_removal_delay_length_minus1 = bs_read_u(b, 5); printf("sps->hrd.initial_cpb_removal_delay_length_minus1: %d \n", sps->hrd.initial_cpb_removal_delay_length_minus1); 
-    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->hrd.cpb_removal_delay_length_minus1 = bs_read_u(b, 5); printf("sps->hrd.cpb_removal_delay_length_minus1: %d \n", sps->hrd.cpb_removal_delay_length_minus1); 
-    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->hrd.dpb_output_delay_length_minus1 = bs_read_u(b, 5); printf("sps->hrd.dpb_output_delay_length_minus1: %d \n", sps->hrd.dpb_output_delay_length_minus1); 
-    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->hrd.time_offset_length = bs_read_u(b, 5); printf("sps->hrd.time_offset_length: %d \n", sps->hrd.time_offset_length); 
+    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->hrd.initial_cpb_removal_delay_length_minus1 = bs_read_u(b, 5); printf("sps->hrd.initial_cpb_removal_delay_length_minus1: %d \n", sps->hrd.initial_cpb_removal_delay_length_minus1);
+    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->hrd.cpb_removal_delay_length_minus1 = bs_read_u(b, 5); printf("sps->hrd.cpb_removal_delay_length_minus1: %d \n", sps->hrd.cpb_removal_delay_length_minus1);
+    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->hrd.dpb_output_delay_length_minus1 = bs_read_u(b, 5); printf("sps->hrd.dpb_output_delay_length_minus1: %d \n", sps->hrd.dpb_output_delay_length_minus1);
+    printf("%d.%d: ", b->p - b->start, b->bits_left); sps->hrd.time_offset_length = bs_read_u(b, 5); printf("sps->hrd.time_offset_length: %d \n", sps->hrd.time_offset_length);
 }
 
 
@@ -2250,15 +2250,15 @@ void read_debug_hrd_parameters(h264_stream_t* h, bs_t* b)
 UNIMPLEMENTED
 //7.3.2.1.2 Sequence parameter set extension RBSP syntax
 int read_debug_seq_parameter_set_extension_rbsp(bs_t* b, sps_ext_t* sps_ext) {
-    printf("%d.%d: ", b->p - b->start, b->bits_left); seq_parameter_set_id = bs_read_ue(b); printf("seq_parameter_set_id: %d \n", seq_parameter_set_id); 
-    printf("%d.%d: ", b->p - b->start, b->bits_left); aux_format_idc = bs_read_ue(b); printf("aux_format_idc: %d \n", aux_format_idc); 
+    printf("%d.%d: ", b->p - b->start, b->bits_left); seq_parameter_set_id = bs_read_ue(b); printf("seq_parameter_set_id: %d \n", seq_parameter_set_id);
+    printf("%d.%d: ", b->p - b->start, b->bits_left); aux_format_idc = bs_read_ue(b); printf("aux_format_idc: %d \n", aux_format_idc);
     if( aux_format_idc != 0 ) {
-        printf("%d.%d: ", b->p - b->start, b->bits_left); bit_depth_aux_minus8 = bs_read_ue(b); printf("bit_depth_aux_minus8: %d \n", bit_depth_aux_minus8); 
-        printf("%d.%d: ", b->p - b->start, b->bits_left); alpha_incr_flag = bs_read_u1(b); printf("alpha_incr_flag: %d \n", alpha_incr_flag); 
+        printf("%d.%d: ", b->p - b->start, b->bits_left); bit_depth_aux_minus8 = bs_read_ue(b); printf("bit_depth_aux_minus8: %d \n", bit_depth_aux_minus8);
+        printf("%d.%d: ", b->p - b->start, b->bits_left); alpha_incr_flag = bs_read_u1(b); printf("alpha_incr_flag: %d \n", alpha_incr_flag);
         alpha_opaque_value = bs_read_debug_u(v);
         alpha_transparent_value = bs_read_debug_u(v);
     }
-    printf("%d.%d: ", b->p - b->start, b->bits_left); additional_extension_flag = bs_read_u1(b); printf("additional_extension_flag: %d \n", additional_extension_flag); 
+    printf("%d.%d: ", b->p - b->start, b->bits_left); additional_extension_flag = bs_read_u1(b); printf("additional_extension_flag: %d \n", additional_extension_flag);
     read_debug_rbsp_trailing_bits();
 }
 */
@@ -2272,57 +2272,57 @@ void read_debug_pic_parameter_set_rbsp(h264_stream_t* h, bs_t* b)
         memset(pps, 0, sizeof(pps_t));
     }
 
-    printf("%d.%d: ", b->p - b->start, b->bits_left); pps->pic_parameter_set_id = bs_read_ue(b); printf("pps->pic_parameter_set_id: %d \n", pps->pic_parameter_set_id); 
-    printf("%d.%d: ", b->p - b->start, b->bits_left); pps->seq_parameter_set_id = bs_read_ue(b); printf("pps->seq_parameter_set_id: %d \n", pps->seq_parameter_set_id); 
-    printf("%d.%d: ", b->p - b->start, b->bits_left); pps->entropy_coding_mode_flag = bs_read_u1(b); printf("pps->entropy_coding_mode_flag: %d \n", pps->entropy_coding_mode_flag); 
-    printf("%d.%d: ", b->p - b->start, b->bits_left); pps->pic_order_present_flag = bs_read_u1(b); printf("pps->pic_order_present_flag: %d \n", pps->pic_order_present_flag); 
-    printf("%d.%d: ", b->p - b->start, b->bits_left); pps->num_slice_groups_minus1 = bs_read_ue(b); printf("pps->num_slice_groups_minus1: %d \n", pps->num_slice_groups_minus1); 
+    printf("%d.%d: ", b->p - b->start, b->bits_left); pps->pic_parameter_set_id = bs_read_ue(b); printf("pps->pic_parameter_set_id: %d \n", pps->pic_parameter_set_id);
+    printf("%d.%d: ", b->p - b->start, b->bits_left); pps->seq_parameter_set_id = bs_read_ue(b); printf("pps->seq_parameter_set_id: %d \n", pps->seq_parameter_set_id);
+    printf("%d.%d: ", b->p - b->start, b->bits_left); pps->entropy_coding_mode_flag = bs_read_u1(b); printf("pps->entropy_coding_mode_flag: %d \n", pps->entropy_coding_mode_flag);
+    printf("%d.%d: ", b->p - b->start, b->bits_left); pps->pic_order_present_flag = bs_read_u1(b); printf("pps->pic_order_present_flag: %d \n", pps->pic_order_present_flag);
+    printf("%d.%d: ", b->p - b->start, b->bits_left); pps->num_slice_groups_minus1 = bs_read_ue(b); printf("pps->num_slice_groups_minus1: %d \n", pps->num_slice_groups_minus1);
 
     if( pps->num_slice_groups_minus1 > 0 )
     {
-        printf("%d.%d: ", b->p - b->start, b->bits_left); pps->slice_group_map_type = bs_read_ue(b); printf("pps->slice_group_map_type: %d \n", pps->slice_group_map_type); 
+        printf("%d.%d: ", b->p - b->start, b->bits_left); pps->slice_group_map_type = bs_read_ue(b); printf("pps->slice_group_map_type: %d \n", pps->slice_group_map_type);
         if( pps->slice_group_map_type == 0 )
         {
             for( int i_group = 0; i_group <= pps->num_slice_groups_minus1; i_group++ )
             {
-                printf("%d.%d: ", b->p - b->start, b->bits_left); pps->run_length_minus1[ i_group ] = bs_read_ue(b); printf("pps->run_length_minus1[ i_group ]: %d \n", pps->run_length_minus1[ i_group ]); 
+                printf("%d.%d: ", b->p - b->start, b->bits_left); pps->run_length_minus1[ i_group ] = bs_read_ue(b); printf("pps->run_length_minus1[ i_group ]: %d \n", pps->run_length_minus1[ i_group ]);
             }
         }
         else if( pps->slice_group_map_type == 2 )
         {
             for( int i_group = 0; i_group < pps->num_slice_groups_minus1; i_group++ )
             {
-                printf("%d.%d: ", b->p - b->start, b->bits_left); pps->top_left[ i_group ] = bs_read_ue(b); printf("pps->top_left[ i_group ]: %d \n", pps->top_left[ i_group ]); 
-                printf("%d.%d: ", b->p - b->start, b->bits_left); pps->bottom_right[ i_group ] = bs_read_ue(b); printf("pps->bottom_right[ i_group ]: %d \n", pps->bottom_right[ i_group ]); 
+                printf("%d.%d: ", b->p - b->start, b->bits_left); pps->top_left[ i_group ] = bs_read_ue(b); printf("pps->top_left[ i_group ]: %d \n", pps->top_left[ i_group ]);
+                printf("%d.%d: ", b->p - b->start, b->bits_left); pps->bottom_right[ i_group ] = bs_read_ue(b); printf("pps->bottom_right[ i_group ]: %d \n", pps->bottom_right[ i_group ]);
             }
         }
         else if( pps->slice_group_map_type == 3 ||
                  pps->slice_group_map_type == 4 ||
                  pps->slice_group_map_type == 5 )
         {
-            printf("%d.%d: ", b->p - b->start, b->bits_left); pps->slice_group_change_direction_flag = bs_read_u1(b); printf("pps->slice_group_change_direction_flag: %d \n", pps->slice_group_change_direction_flag); 
-            printf("%d.%d: ", b->p - b->start, b->bits_left); pps->slice_group_change_rate_minus1 = bs_read_ue(b); printf("pps->slice_group_change_rate_minus1: %d \n", pps->slice_group_change_rate_minus1); 
+            printf("%d.%d: ", b->p - b->start, b->bits_left); pps->slice_group_change_direction_flag = bs_read_u1(b); printf("pps->slice_group_change_direction_flag: %d \n", pps->slice_group_change_direction_flag);
+            printf("%d.%d: ", b->p - b->start, b->bits_left); pps->slice_group_change_rate_minus1 = bs_read_ue(b); printf("pps->slice_group_change_rate_minus1: %d \n", pps->slice_group_change_rate_minus1);
         }
         else if( pps->slice_group_map_type == 6 )
         {
-            printf("%d.%d: ", b->p - b->start, b->bits_left); pps->pic_size_in_map_units_minus1 = bs_read_ue(b); printf("pps->pic_size_in_map_units_minus1: %d \n", pps->pic_size_in_map_units_minus1); 
+            printf("%d.%d: ", b->p - b->start, b->bits_left); pps->pic_size_in_map_units_minus1 = bs_read_ue(b); printf("pps->pic_size_in_map_units_minus1: %d \n", pps->pic_size_in_map_units_minus1);
             for( int i = 0; i <= pps->pic_size_in_map_units_minus1; i++ )
             {
                 int v = intlog2( pps->num_slice_groups_minus1 + 1 );
-                printf("%d.%d: ", b->p - b->start, b->bits_left); pps->slice_group_id[ i ] = bs_read_u(b, v); printf("pps->slice_group_id[ i ]: %d \n", pps->slice_group_id[ i ]); 
+                printf("%d.%d: ", b->p - b->start, b->bits_left); pps->slice_group_id[ i ] = bs_read_u(b, v); printf("pps->slice_group_id[ i ]: %d \n", pps->slice_group_id[ i ]);
             }
         }
     }
-    printf("%d.%d: ", b->p - b->start, b->bits_left); pps->num_ref_idx_l0_active_minus1 = bs_read_ue(b); printf("pps->num_ref_idx_l0_active_minus1: %d \n", pps->num_ref_idx_l0_active_minus1); 
-    printf("%d.%d: ", b->p - b->start, b->bits_left); pps->num_ref_idx_l1_active_minus1 = bs_read_ue(b); printf("pps->num_ref_idx_l1_active_minus1: %d \n", pps->num_ref_idx_l1_active_minus1); 
-    printf("%d.%d: ", b->p - b->start, b->bits_left); pps->weighted_pred_flag = bs_read_u1(b); printf("pps->weighted_pred_flag: %d \n", pps->weighted_pred_flag); 
-    printf("%d.%d: ", b->p - b->start, b->bits_left); pps->weighted_bipred_idc = bs_read_u(b, 2); printf("pps->weighted_bipred_idc: %d \n", pps->weighted_bipred_idc); 
-    printf("%d.%d: ", b->p - b->start, b->bits_left); pps->pic_init_qp_minus26 = bs_read_se(b); printf("pps->pic_init_qp_minus26: %d \n", pps->pic_init_qp_minus26); 
-    printf("%d.%d: ", b->p - b->start, b->bits_left); pps->pic_init_qs_minus26 = bs_read_se(b); printf("pps->pic_init_qs_minus26: %d \n", pps->pic_init_qs_minus26); 
-    printf("%d.%d: ", b->p - b->start, b->bits_left); pps->chroma_qp_index_offset = bs_read_se(b); printf("pps->chroma_qp_index_offset: %d \n", pps->chroma_qp_index_offset); 
-    printf("%d.%d: ", b->p - b->start, b->bits_left); pps->deblocking_filter_control_present_flag = bs_read_u1(b); printf("pps->deblocking_filter_control_present_flag: %d \n", pps->deblocking_filter_control_present_flag); 
-    printf("%d.%d: ", b->p - b->start, b->bits_left); pps->constrained_intra_pred_flag = bs_read_u1(b); printf("pps->constrained_intra_pred_flag: %d \n", pps->constrained_intra_pred_flag); 
-    printf("%d.%d: ", b->p - b->start, b->bits_left); pps->redundant_pic_cnt_present_flag = bs_read_u1(b); printf("pps->redundant_pic_cnt_present_flag: %d \n", pps->redundant_pic_cnt_present_flag); 
+    printf("%d.%d: ", b->p - b->start, b->bits_left); pps->num_ref_idx_l0_active_minus1 = bs_read_ue(b); printf("pps->num_ref_idx_l0_active_minus1: %d \n", pps->num_ref_idx_l0_active_minus1);
+    printf("%d.%d: ", b->p - b->start, b->bits_left); pps->num_ref_idx_l1_active_minus1 = bs_read_ue(b); printf("pps->num_ref_idx_l1_active_minus1: %d \n", pps->num_ref_idx_l1_active_minus1);
+    printf("%d.%d: ", b->p - b->start, b->bits_left); pps->weighted_pred_flag = bs_read_u1(b); printf("pps->weighted_pred_flag: %d \n", pps->weighted_pred_flag);
+    printf("%d.%d: ", b->p - b->start, b->bits_left); pps->weighted_bipred_idc = bs_read_u(b, 2); printf("pps->weighted_bipred_idc: %d \n", pps->weighted_bipred_idc);
+    printf("%d.%d: ", b->p - b->start, b->bits_left); pps->pic_init_qp_minus26 = bs_read_se(b); printf("pps->pic_init_qp_minus26: %d \n", pps->pic_init_qp_minus26);
+    printf("%d.%d: ", b->p - b->start, b->bits_left); pps->pic_init_qs_minus26 = bs_read_se(b); printf("pps->pic_init_qs_minus26: %d \n", pps->pic_init_qs_minus26);
+    printf("%d.%d: ", b->p - b->start, b->bits_left); pps->chroma_qp_index_offset = bs_read_se(b); printf("pps->chroma_qp_index_offset: %d \n", pps->chroma_qp_index_offset);
+    printf("%d.%d: ", b->p - b->start, b->bits_left); pps->deblocking_filter_control_present_flag = bs_read_u1(b); printf("pps->deblocking_filter_control_present_flag: %d \n", pps->deblocking_filter_control_present_flag);
+    printf("%d.%d: ", b->p - b->start, b->bits_left); pps->constrained_intra_pred_flag = bs_read_u1(b); printf("pps->constrained_intra_pred_flag: %d \n", pps->constrained_intra_pred_flag);
+    printf("%d.%d: ", b->p - b->start, b->bits_left); pps->redundant_pic_cnt_present_flag = bs_read_u1(b); printf("pps->redundant_pic_cnt_present_flag: %d \n", pps->redundant_pic_cnt_present_flag);
 
     int have_more_data = 0;
     if( 1 ) { have_more_data = more_rbsp_data(h, b); }
@@ -2333,13 +2333,13 @@ void read_debug_pic_parameter_set_rbsp(h264_stream_t* h, bs_t* b)
 
     if( have_more_data )
     {
-        printf("%d.%d: ", b->p - b->start, b->bits_left); pps->transform_8x8_mode_flag = bs_read_u1(b); printf("pps->transform_8x8_mode_flag: %d \n", pps->transform_8x8_mode_flag); 
-        printf("%d.%d: ", b->p - b->start, b->bits_left); pps->pic_scaling_matrix_present_flag = bs_read_u1(b); printf("pps->pic_scaling_matrix_present_flag: %d \n", pps->pic_scaling_matrix_present_flag); 
+        printf("%d.%d: ", b->p - b->start, b->bits_left); pps->transform_8x8_mode_flag = bs_read_u1(b); printf("pps->transform_8x8_mode_flag: %d \n", pps->transform_8x8_mode_flag);
+        printf("%d.%d: ", b->p - b->start, b->bits_left); pps->pic_scaling_matrix_present_flag = bs_read_u1(b); printf("pps->pic_scaling_matrix_present_flag: %d \n", pps->pic_scaling_matrix_present_flag);
         if( pps->pic_scaling_matrix_present_flag )
         {
             for( int i = 0; i < 6 + 2* pps->transform_8x8_mode_flag; i++ )
             {
-                printf("%d.%d: ", b->p - b->start, b->bits_left); pps->pic_scaling_list_present_flag[ i ] = bs_read_u1(b); printf("pps->pic_scaling_list_present_flag[ i ]: %d \n", pps->pic_scaling_list_present_flag[ i ]); 
+                printf("%d.%d: ", b->p - b->start, b->bits_left); pps->pic_scaling_list_present_flag[ i ] = bs_read_u1(b); printf("pps->pic_scaling_list_present_flag[ i ]: %d \n", pps->pic_scaling_list_present_flag[ i ]);
                 if( pps->pic_scaling_list_present_flag[ i ] )
                 {
                     if( i < 6 )
@@ -2355,7 +2355,7 @@ void read_debug_pic_parameter_set_rbsp(h264_stream_t* h, bs_t* b)
                 }
             }
         }
-        printf("%d.%d: ", b->p - b->start, b->bits_left); pps->second_chroma_qp_index_offset = bs_read_se(b); printf("pps->second_chroma_qp_index_offset: %d \n", pps->second_chroma_qp_index_offset); 
+        printf("%d.%d: ", b->p - b->start, b->bits_left); pps->second_chroma_qp_index_offset = bs_read_se(b); printf("pps->second_chroma_qp_index_offset: %d \n", pps->second_chroma_qp_index_offset);
     }
     read_debug_rbsp_trailing_bits(h, b);
 
@@ -2375,7 +2375,7 @@ void read_debug_sei_rbsp(h264_stream_t* h, bs_t* b)
     {
         sei_free(h->seis[i]);
     }
-    
+
     h->num_seis = 0;
     do {
         h->num_seis++;
@@ -2420,7 +2420,7 @@ void read_debug_sei_message(h264_stream_t* h, bs_t* b)
 //7.3.2.4 Access unit delimiter RBSP syntax
 void read_debug_access_unit_delimiter_rbsp(h264_stream_t* h, bs_t* b)
 {
-    printf("%d.%d: ", b->p - b->start, b->bits_left); h->aud->primary_pic_type = bs_read_u(b, 3); printf("h->aud->primary_pic_type: %d \n", h->aud->primary_pic_type); 
+    printf("%d.%d: ", b->p - b->start, b->bits_left); h->aud->primary_pic_type = bs_read_u(b, 3); printf("h->aud->primary_pic_type: %d \n", h->aud->primary_pic_type);
     read_debug_rbsp_trailing_bits(h, b);
 }
 
@@ -2439,7 +2439,7 @@ void read_debug_filler_data_rbsp(h264_stream_t* h, bs_t* b)
 {
     while( bs_next_bits(b, 8) == 0xFF )
     {
-        printf("%d.%d: ", b->p - b->start, b->bits_left); int ff_byte = bs_read_u(b, 8); printf("ff_byte: %d \n", ff_byte); 
+        printf("%d.%d: ", b->p - b->start, b->bits_left); int ff_byte = bs_read_u(b, 8); printf("ff_byte: %d \n", ff_byte);
     }
     read_debug_rbsp_trailing_bits(h, b);
 }
@@ -2452,10 +2452,10 @@ void read_debug_slice_layer_rbsp(h264_stream_t* h,  bs_t* b)
 
     if ( slice_data != NULL )
     {
-        if ( slice_data->rbsp_buf != NULL ) free( slice_data->rbsp_buf ); 
+        if ( slice_data->rbsp_buf != NULL ) free( slice_data->rbsp_buf );
         uint8_t *sptr = b->p + (!!b->bits_left); // CABAC-specific: skip alignment bits, if there are any
         slice_data->rbsp_size = b->end - sptr;
-        
+
         slice_data->rbsp_buf = (uint8_t*)malloc(slice_data->rbsp_size);
         memcpy( slice_data->rbsp_buf, sptr, slice_data->rbsp_size );
         // ugly hack: since next NALU starts at byte border, we are going to be padded by trailing_bits;
@@ -2481,7 +2481,7 @@ slice_data_partition_a_layer_rbsp( ) {
 slice_data_partition_b_layer_rbsp( ) {
     printf("%d.%d: ", b->p - b->start, b->bits_left); slice_id = bs_read_ue(b); printf("slice_id: %d \n", slice_id);     // only category 3
     if( redundant_pic_cnt_present_flag )
-        printf("%d.%d: ", b->p - b->start, b->bits_left); redundant_pic_cnt = bs_read_ue(b); printf("redundant_pic_cnt: %d \n", redundant_pic_cnt); 
+        printf("%d.%d: ", b->p - b->start, b->bits_left); redundant_pic_cnt = bs_read_ue(b); printf("redundant_pic_cnt: %d \n", redundant_pic_cnt);
     read_debug_slice_data( );               // only category 3
     read_debug_rbsp_slice_trailing_bits( ); // only category 3
 }
@@ -2490,7 +2490,7 @@ slice_data_partition_b_layer_rbsp( ) {
 slice_data_partition_c_layer_rbsp( ) {
     printf("%d.%d: ", b->p - b->start, b->bits_left); slice_id = bs_read_ue(b); printf("slice_id: %d \n", slice_id);     // only category 4
     if( redundant_pic_cnt_present_flag )
-        printf("%d.%d: ", b->p - b->start, b->bits_left); redundant_pic_cnt = bs_read_ue(b); printf("redundant_pic_cnt: %d \n", redundant_pic_cnt); 
+        printf("%d.%d: ", b->p - b->start, b->bits_left); redundant_pic_cnt = bs_read_ue(b); printf("redundant_pic_cnt: %d \n", redundant_pic_cnt);
     read_debug_slice_data( );               // only category 4
     rbsp_slice_trailing_bits( ); // only category 4
 }
@@ -2504,7 +2504,7 @@ void read_debug_rbsp_slice_trailing_bits(h264_stream_t* h, bs_t* b)
     {
         while( more_rbsp_trailing_data(h, b) )
         {
-            printf("%d.%d: ", b->p - b->start, b->bits_left); int cabac_zero_word = bs_read_u(b, 16); printf("cabac_zero_word: %d \n", cabac_zero_word); 
+            printf("%d.%d: ", b->p - b->start, b->bits_left); int cabac_zero_word = bs_read_u(b, 16); printf("cabac_zero_word: %d \n", cabac_zero_word);
         }
     }
 }
@@ -2512,11 +2512,11 @@ void read_debug_rbsp_slice_trailing_bits(h264_stream_t* h, bs_t* b)
 //7.3.2.11 RBSP trailing bits syntax
 void read_debug_rbsp_trailing_bits(h264_stream_t* h, bs_t* b)
 {
-    printf("%d.%d: ", b->p - b->start, b->bits_left); int rbsp_stop_one_bit = bs_read_u(b, 1); printf("rbsp_stop_one_bit: %d \n", rbsp_stop_one_bit); 
+    printf("%d.%d: ", b->p - b->start, b->bits_left); int rbsp_stop_one_bit = bs_read_u(b, 1); printf("rbsp_stop_one_bit: %d \n", rbsp_stop_one_bit);
 
     while( !bs_byte_aligned(b) )
     {
-        printf("%d.%d: ", b->p - b->start, b->bits_left); int rbsp_alignment_zero_bit = bs_read_u(b, 1); printf("rbsp_alignment_zero_bit: %d \n", rbsp_alignment_zero_bit); 
+        printf("%d.%d: ", b->p - b->start, b->bits_left); int rbsp_alignment_zero_bit = bs_read_u(b, 1); printf("rbsp_alignment_zero_bit: %d \n", rbsp_alignment_zero_bit);
     }
 }
 
@@ -2531,9 +2531,9 @@ void read_debug_slice_header(h264_stream_t* h, bs_t* b)
 
     nal_t* nal = h->nal;
 
-    printf("%d.%d: ", b->p - b->start, b->bits_left); sh->first_mb_in_slice = bs_read_ue(b); printf("sh->first_mb_in_slice: %d \n", sh->first_mb_in_slice); 
-    printf("%d.%d: ", b->p - b->start, b->bits_left); sh->slice_type = bs_read_ue(b); printf("sh->slice_type: %d \n", sh->slice_type); 
-    printf("%d.%d: ", b->p - b->start, b->bits_left); sh->pic_parameter_set_id = bs_read_ue(b); printf("sh->pic_parameter_set_id: %d \n", sh->pic_parameter_set_id); 
+    printf("%d.%d: ", b->p - b->start, b->bits_left); sh->first_mb_in_slice = bs_read_ue(b); printf("sh->first_mb_in_slice: %d \n", sh->first_mb_in_slice);
+    printf("%d.%d: ", b->p - b->start, b->bits_left); sh->slice_type = bs_read_ue(b); printf("sh->slice_type: %d \n", sh->slice_type);
+    printf("%d.%d: ", b->p - b->start, b->bits_left); sh->pic_parameter_set_id = bs_read_ue(b); printf("sh->pic_parameter_set_id: %d \n", sh->pic_parameter_set_id);
 
     // TODO check existence, otherwise fail
     pps_t* pps = h->pps;
@@ -2544,49 +2544,49 @@ void read_debug_slice_header(h264_stream_t* h, bs_t* b)
     printf("%d.%d: ", b->p - b->start, b->bits_left); sh->frame_num = bs_read_u(b, sps->log2_max_frame_num_minus4 + 4 ); printf("sh->frame_num: %d \n", sh->frame_num);  // was u(v)
     if( !sps->frame_mbs_only_flag )
     {
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sh->field_pic_flag = bs_read_u1(b); printf("sh->field_pic_flag: %d \n", sh->field_pic_flag); 
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sh->field_pic_flag = bs_read_u1(b); printf("sh->field_pic_flag: %d \n", sh->field_pic_flag);
         if( sh->field_pic_flag )
         {
-            printf("%d.%d: ", b->p - b->start, b->bits_left); sh->bottom_field_flag = bs_read_u1(b); printf("sh->bottom_field_flag: %d \n", sh->bottom_field_flag); 
+            printf("%d.%d: ", b->p - b->start, b->bits_left); sh->bottom_field_flag = bs_read_u1(b); printf("sh->bottom_field_flag: %d \n", sh->bottom_field_flag);
         }
     }
     if( nal->nal_unit_type == 5 )
     {
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sh->idr_pic_id = bs_read_ue(b); printf("sh->idr_pic_id: %d \n", sh->idr_pic_id); 
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sh->idr_pic_id = bs_read_ue(b); printf("sh->idr_pic_id: %d \n", sh->idr_pic_id);
     }
     if( sps->pic_order_cnt_type == 0 )
     {
         printf("%d.%d: ", b->p - b->start, b->bits_left); sh->pic_order_cnt_lsb = bs_read_u(b, sps->log2_max_pic_order_cnt_lsb_minus4 + 4 ); printf("sh->pic_order_cnt_lsb: %d \n", sh->pic_order_cnt_lsb);  // was u(v)
         if( pps->pic_order_present_flag && !sh->field_pic_flag )
         {
-            printf("%d.%d: ", b->p - b->start, b->bits_left); sh->delta_pic_order_cnt_bottom = bs_read_se(b); printf("sh->delta_pic_order_cnt_bottom: %d \n", sh->delta_pic_order_cnt_bottom); 
+            printf("%d.%d: ", b->p - b->start, b->bits_left); sh->delta_pic_order_cnt_bottom = bs_read_se(b); printf("sh->delta_pic_order_cnt_bottom: %d \n", sh->delta_pic_order_cnt_bottom);
         }
     }
     if( sps->pic_order_cnt_type == 1 && !sps->delta_pic_order_always_zero_flag )
     {
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sh->delta_pic_order_cnt[ 0 ] = bs_read_se(b); printf("sh->delta_pic_order_cnt[ 0 ]: %d \n", sh->delta_pic_order_cnt[ 0 ]); 
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sh->delta_pic_order_cnt[ 0 ] = bs_read_se(b); printf("sh->delta_pic_order_cnt[ 0 ]: %d \n", sh->delta_pic_order_cnt[ 0 ]);
         if( pps->pic_order_present_flag && !sh->field_pic_flag )
         {
-            printf("%d.%d: ", b->p - b->start, b->bits_left); sh->delta_pic_order_cnt[ 1 ] = bs_read_se(b); printf("sh->delta_pic_order_cnt[ 1 ]: %d \n", sh->delta_pic_order_cnt[ 1 ]); 
+            printf("%d.%d: ", b->p - b->start, b->bits_left); sh->delta_pic_order_cnt[ 1 ] = bs_read_se(b); printf("sh->delta_pic_order_cnt[ 1 ]: %d \n", sh->delta_pic_order_cnt[ 1 ]);
         }
     }
     if( pps->redundant_pic_cnt_present_flag )
     {
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sh->redundant_pic_cnt = bs_read_ue(b); printf("sh->redundant_pic_cnt: %d \n", sh->redundant_pic_cnt); 
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sh->redundant_pic_cnt = bs_read_ue(b); printf("sh->redundant_pic_cnt: %d \n", sh->redundant_pic_cnt);
     }
     if( is_slice_type( sh->slice_type, SH_SLICE_TYPE_B ) )
     {
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sh->direct_spatial_mv_pred_flag = bs_read_u1(b); printf("sh->direct_spatial_mv_pred_flag: %d \n", sh->direct_spatial_mv_pred_flag); 
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sh->direct_spatial_mv_pred_flag = bs_read_u1(b); printf("sh->direct_spatial_mv_pred_flag: %d \n", sh->direct_spatial_mv_pred_flag);
     }
     if( is_slice_type( sh->slice_type, SH_SLICE_TYPE_P ) || is_slice_type( sh->slice_type, SH_SLICE_TYPE_SP ) || is_slice_type( sh->slice_type, SH_SLICE_TYPE_B ) )
     {
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sh->num_ref_idx_active_override_flag = bs_read_u1(b); printf("sh->num_ref_idx_active_override_flag: %d \n", sh->num_ref_idx_active_override_flag); 
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sh->num_ref_idx_active_override_flag = bs_read_u1(b); printf("sh->num_ref_idx_active_override_flag: %d \n", sh->num_ref_idx_active_override_flag);
         if( sh->num_ref_idx_active_override_flag )
         {
             printf("%d.%d: ", b->p - b->start, b->bits_left); sh->num_ref_idx_l0_active_minus1 = bs_read_ue(b); printf("sh->num_ref_idx_l0_active_minus1: %d \n", sh->num_ref_idx_l0_active_minus1);  // FIXME does this modify the pps?
             if( is_slice_type( sh->slice_type, SH_SLICE_TYPE_B ) )
             {
-                printf("%d.%d: ", b->p - b->start, b->bits_left); sh->num_ref_idx_l1_active_minus1 = bs_read_ue(b); printf("sh->num_ref_idx_l1_active_minus1: %d \n", sh->num_ref_idx_l1_active_minus1); 
+                printf("%d.%d: ", b->p - b->start, b->bits_left); sh->num_ref_idx_l1_active_minus1 = bs_read_ue(b); printf("sh->num_ref_idx_l1_active_minus1: %d \n", sh->num_ref_idx_l1_active_minus1);
             }
         }
     }
@@ -2602,24 +2602,24 @@ void read_debug_slice_header(h264_stream_t* h, bs_t* b)
     }
     if( pps->entropy_coding_mode_flag && ! is_slice_type( sh->slice_type, SH_SLICE_TYPE_I ) && ! is_slice_type( sh->slice_type, SH_SLICE_TYPE_SI ) )
     {
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sh->cabac_init_idc = bs_read_ue(b); printf("sh->cabac_init_idc: %d \n", sh->cabac_init_idc); 
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sh->cabac_init_idc = bs_read_ue(b); printf("sh->cabac_init_idc: %d \n", sh->cabac_init_idc);
     }
-    printf("%d.%d: ", b->p - b->start, b->bits_left); sh->slice_qp_delta = bs_read_se(b); printf("sh->slice_qp_delta: %d \n", sh->slice_qp_delta); 
+    printf("%d.%d: ", b->p - b->start, b->bits_left); sh->slice_qp_delta = bs_read_se(b); printf("sh->slice_qp_delta: %d \n", sh->slice_qp_delta);
     if( is_slice_type( sh->slice_type, SH_SLICE_TYPE_SP ) || is_slice_type( sh->slice_type, SH_SLICE_TYPE_SI ) )
     {
         if( is_slice_type( sh->slice_type, SH_SLICE_TYPE_SP ) )
         {
-            printf("%d.%d: ", b->p - b->start, b->bits_left); sh->sp_for_switch_flag = bs_read_u1(b); printf("sh->sp_for_switch_flag: %d \n", sh->sp_for_switch_flag); 
+            printf("%d.%d: ", b->p - b->start, b->bits_left); sh->sp_for_switch_flag = bs_read_u1(b); printf("sh->sp_for_switch_flag: %d \n", sh->sp_for_switch_flag);
         }
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sh->slice_qs_delta = bs_read_se(b); printf("sh->slice_qs_delta: %d \n", sh->slice_qs_delta); 
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sh->slice_qs_delta = bs_read_se(b); printf("sh->slice_qs_delta: %d \n", sh->slice_qs_delta);
     }
     if( pps->deblocking_filter_control_present_flag )
     {
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sh->disable_deblocking_filter_idc = bs_read_ue(b); printf("sh->disable_deblocking_filter_idc: %d \n", sh->disable_deblocking_filter_idc); 
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sh->disable_deblocking_filter_idc = bs_read_ue(b); printf("sh->disable_deblocking_filter_idc: %d \n", sh->disable_deblocking_filter_idc);
         if( sh->disable_deblocking_filter_idc != 1 )
         {
-            printf("%d.%d: ", b->p - b->start, b->bits_left); sh->slice_alpha_c0_offset_div2 = bs_read_se(b); printf("sh->slice_alpha_c0_offset_div2: %d \n", sh->slice_alpha_c0_offset_div2); 
-            printf("%d.%d: ", b->p - b->start, b->bits_left); sh->slice_beta_offset_div2 = bs_read_se(b); printf("sh->slice_beta_offset_div2: %d \n", sh->slice_beta_offset_div2); 
+            printf("%d.%d: ", b->p - b->start, b->bits_left); sh->slice_alpha_c0_offset_div2 = bs_read_se(b); printf("sh->slice_alpha_c0_offset_div2: %d \n", sh->slice_alpha_c0_offset_div2);
+            printf("%d.%d: ", b->p - b->start, b->bits_left); sh->slice_beta_offset_div2 = bs_read_se(b); printf("sh->slice_beta_offset_div2: %d \n", sh->slice_beta_offset_div2);
         }
     }
     if( pps->num_slice_groups_minus1 > 0 &&
@@ -2638,44 +2638,44 @@ void read_debug_ref_pic_list_reordering(h264_stream_t* h, bs_t* b)
 
     if( ! is_slice_type( sh->slice_type, SH_SLICE_TYPE_I ) && ! is_slice_type( sh->slice_type, SH_SLICE_TYPE_SI ) )
     {
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sh->rplr.ref_pic_list_reordering_flag_l0 = bs_read_u1(b); printf("sh->rplr.ref_pic_list_reordering_flag_l0: %d \n", sh->rplr.ref_pic_list_reordering_flag_l0); 
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sh->rplr.ref_pic_list_reordering_flag_l0 = bs_read_u1(b); printf("sh->rplr.ref_pic_list_reordering_flag_l0: %d \n", sh->rplr.ref_pic_list_reordering_flag_l0);
         if( sh->rplr.ref_pic_list_reordering_flag_l0 )
         {
             int n = -1;
             do
             {
                 n++;
-                printf("%d.%d: ", b->p - b->start, b->bits_left); sh->rplr.reorder_l0.reordering_of_pic_nums_idc[ n ] = bs_read_ue(b); printf("sh->rplr.reorder_l0.reordering_of_pic_nums_idc[ n ]: %d \n", sh->rplr.reorder_l0.reordering_of_pic_nums_idc[ n ]); 
+                printf("%d.%d: ", b->p - b->start, b->bits_left); sh->rplr.reorder_l0.reordering_of_pic_nums_idc[ n ] = bs_read_ue(b); printf("sh->rplr.reorder_l0.reordering_of_pic_nums_idc[ n ]: %d \n", sh->rplr.reorder_l0.reordering_of_pic_nums_idc[ n ]);
                 if( sh->rplr.reorder_l0.reordering_of_pic_nums_idc[ n ] == 0 ||
                     sh->rplr.reorder_l0.reordering_of_pic_nums_idc[ n ] == 1 )
                 {
-                    printf("%d.%d: ", b->p - b->start, b->bits_left); sh->rplr.reorder_l0.abs_diff_pic_num_minus1[ n ] = bs_read_ue(b); printf("sh->rplr.reorder_l0.abs_diff_pic_num_minus1[ n ]: %d \n", sh->rplr.reorder_l0.abs_diff_pic_num_minus1[ n ]); 
+                    printf("%d.%d: ", b->p - b->start, b->bits_left); sh->rplr.reorder_l0.abs_diff_pic_num_minus1[ n ] = bs_read_ue(b); printf("sh->rplr.reorder_l0.abs_diff_pic_num_minus1[ n ]: %d \n", sh->rplr.reorder_l0.abs_diff_pic_num_minus1[ n ]);
                 }
                 else if( sh->rplr.reorder_l0.reordering_of_pic_nums_idc[ n ] == 2 )
                 {
-                    printf("%d.%d: ", b->p - b->start, b->bits_left); sh->rplr.reorder_l0.long_term_pic_num[ n ] = bs_read_ue(b); printf("sh->rplr.reorder_l0.long_term_pic_num[ n ]: %d \n", sh->rplr.reorder_l0.long_term_pic_num[ n ]); 
+                    printf("%d.%d: ", b->p - b->start, b->bits_left); sh->rplr.reorder_l0.long_term_pic_num[ n ] = bs_read_ue(b); printf("sh->rplr.reorder_l0.long_term_pic_num[ n ]: %d \n", sh->rplr.reorder_l0.long_term_pic_num[ n ]);
                 }
             } while( sh->rplr.reorder_l0.reordering_of_pic_nums_idc[ n ] != 3 && ! bs_eof(b) );
         }
     }
     if( is_slice_type( sh->slice_type, SH_SLICE_TYPE_B ) )
     {
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sh->rplr.ref_pic_list_reordering_flag_l1 = bs_read_u1(b); printf("sh->rplr.ref_pic_list_reordering_flag_l1: %d \n", sh->rplr.ref_pic_list_reordering_flag_l1); 
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sh->rplr.ref_pic_list_reordering_flag_l1 = bs_read_u1(b); printf("sh->rplr.ref_pic_list_reordering_flag_l1: %d \n", sh->rplr.ref_pic_list_reordering_flag_l1);
         if( sh->rplr.ref_pic_list_reordering_flag_l1 )
         {
             int n = -1;
             do
             {
                 n++;
-                printf("%d.%d: ", b->p - b->start, b->bits_left); sh->rplr.reorder_l1.reordering_of_pic_nums_idc[ n ] = bs_read_ue(b); printf("sh->rplr.reorder_l1.reordering_of_pic_nums_idc[ n ]: %d \n", sh->rplr.reorder_l1.reordering_of_pic_nums_idc[ n ]); 
+                printf("%d.%d: ", b->p - b->start, b->bits_left); sh->rplr.reorder_l1.reordering_of_pic_nums_idc[ n ] = bs_read_ue(b); printf("sh->rplr.reorder_l1.reordering_of_pic_nums_idc[ n ]: %d \n", sh->rplr.reorder_l1.reordering_of_pic_nums_idc[ n ]);
                 if( sh->rplr.reorder_l1.reordering_of_pic_nums_idc[ n ] == 0 ||
                     sh->rplr.reorder_l1.reordering_of_pic_nums_idc[ n ] == 1 )
                 {
-                    printf("%d.%d: ", b->p - b->start, b->bits_left); sh->rplr.reorder_l1.abs_diff_pic_num_minus1[ n ] = bs_read_ue(b); printf("sh->rplr.reorder_l1.abs_diff_pic_num_minus1[ n ]: %d \n", sh->rplr.reorder_l1.abs_diff_pic_num_minus1[ n ]); 
+                    printf("%d.%d: ", b->p - b->start, b->bits_left); sh->rplr.reorder_l1.abs_diff_pic_num_minus1[ n ] = bs_read_ue(b); printf("sh->rplr.reorder_l1.abs_diff_pic_num_minus1[ n ]: %d \n", sh->rplr.reorder_l1.abs_diff_pic_num_minus1[ n ]);
                 }
                 else if( sh->rplr.reorder_l1.reordering_of_pic_nums_idc[ n ] == 2 )
                 {
-                    printf("%d.%d: ", b->p - b->start, b->bits_left); sh->rplr.reorder_l1.long_term_pic_num[ n ] = bs_read_ue(b); printf("sh->rplr.reorder_l1.long_term_pic_num[ n ]: %d \n", sh->rplr.reorder_l1.long_term_pic_num[ n ]); 
+                    printf("%d.%d: ", b->p - b->start, b->bits_left); sh->rplr.reorder_l1.long_term_pic_num[ n ] = bs_read_ue(b); printf("sh->rplr.reorder_l1.long_term_pic_num[ n ]: %d \n", sh->rplr.reorder_l1.long_term_pic_num[ n ]);
                 }
             } while( sh->rplr.reorder_l1.reordering_of_pic_nums_idc[ n ] != 3 && ! bs_eof(b) );
         }
@@ -2691,28 +2691,28 @@ void read_debug_pred_weight_table(h264_stream_t* h, bs_t* b)
 
     int i, j;
 
-    printf("%d.%d: ", b->p - b->start, b->bits_left); sh->pwt.luma_log2_weight_denom = bs_read_ue(b); printf("sh->pwt.luma_log2_weight_denom: %d \n", sh->pwt.luma_log2_weight_denom); 
+    printf("%d.%d: ", b->p - b->start, b->bits_left); sh->pwt.luma_log2_weight_denom = bs_read_ue(b); printf("sh->pwt.luma_log2_weight_denom: %d \n", sh->pwt.luma_log2_weight_denom);
     if( sps->chroma_format_idc != 0 )
     {
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sh->pwt.chroma_log2_weight_denom = bs_read_ue(b); printf("sh->pwt.chroma_log2_weight_denom: %d \n", sh->pwt.chroma_log2_weight_denom); 
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sh->pwt.chroma_log2_weight_denom = bs_read_ue(b); printf("sh->pwt.chroma_log2_weight_denom: %d \n", sh->pwt.chroma_log2_weight_denom);
     }
     for( i = 0; i <= pps->num_ref_idx_l0_active_minus1; i++ )
     {
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sh->pwt.luma_weight_l0_flag[i] = bs_read_u1(b); printf("sh->pwt.luma_weight_l0_flag[i]: %d \n", sh->pwt.luma_weight_l0_flag[i]); 
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sh->pwt.luma_weight_l0_flag[i] = bs_read_u1(b); printf("sh->pwt.luma_weight_l0_flag[i]: %d \n", sh->pwt.luma_weight_l0_flag[i]);
         if( sh->pwt.luma_weight_l0_flag[i] )
         {
-            printf("%d.%d: ", b->p - b->start, b->bits_left); sh->pwt.luma_weight_l0[ i ] = bs_read_se(b); printf("sh->pwt.luma_weight_l0[ i ]: %d \n", sh->pwt.luma_weight_l0[ i ]); 
-            printf("%d.%d: ", b->p - b->start, b->bits_left); sh->pwt.luma_offset_l0[ i ] = bs_read_se(b); printf("sh->pwt.luma_offset_l0[ i ]: %d \n", sh->pwt.luma_offset_l0[ i ]); 
+            printf("%d.%d: ", b->p - b->start, b->bits_left); sh->pwt.luma_weight_l0[ i ] = bs_read_se(b); printf("sh->pwt.luma_weight_l0[ i ]: %d \n", sh->pwt.luma_weight_l0[ i ]);
+            printf("%d.%d: ", b->p - b->start, b->bits_left); sh->pwt.luma_offset_l0[ i ] = bs_read_se(b); printf("sh->pwt.luma_offset_l0[ i ]: %d \n", sh->pwt.luma_offset_l0[ i ]);
         }
         if ( sps->chroma_format_idc != 0 )
         {
-            printf("%d.%d: ", b->p - b->start, b->bits_left); sh->pwt.chroma_weight_l0_flag[i] = bs_read_u1(b); printf("sh->pwt.chroma_weight_l0_flag[i]: %d \n", sh->pwt.chroma_weight_l0_flag[i]); 
+            printf("%d.%d: ", b->p - b->start, b->bits_left); sh->pwt.chroma_weight_l0_flag[i] = bs_read_u1(b); printf("sh->pwt.chroma_weight_l0_flag[i]: %d \n", sh->pwt.chroma_weight_l0_flag[i]);
             if( sh->pwt.chroma_weight_l0_flag[i] )
             {
                 for( j =0; j < 2; j++ )
                 {
-                    printf("%d.%d: ", b->p - b->start, b->bits_left); sh->pwt.chroma_weight_l0[ i ][ j ] = bs_read_se(b); printf("sh->pwt.chroma_weight_l0[ i ][ j ]: %d \n", sh->pwt.chroma_weight_l0[ i ][ j ]); 
-                    printf("%d.%d: ", b->p - b->start, b->bits_left); sh->pwt.chroma_offset_l0[ i ][ j ] = bs_read_se(b); printf("sh->pwt.chroma_offset_l0[ i ][ j ]: %d \n", sh->pwt.chroma_offset_l0[ i ][ j ]); 
+                    printf("%d.%d: ", b->p - b->start, b->bits_left); sh->pwt.chroma_weight_l0[ i ][ j ] = bs_read_se(b); printf("sh->pwt.chroma_weight_l0[ i ][ j ]: %d \n", sh->pwt.chroma_weight_l0[ i ][ j ]);
+                    printf("%d.%d: ", b->p - b->start, b->bits_left); sh->pwt.chroma_offset_l0[ i ][ j ] = bs_read_se(b); printf("sh->pwt.chroma_offset_l0[ i ][ j ]: %d \n", sh->pwt.chroma_offset_l0[ i ][ j ]);
                 }
             }
         }
@@ -2721,21 +2721,21 @@ void read_debug_pred_weight_table(h264_stream_t* h, bs_t* b)
     {
         for( i = 0; i <= pps->num_ref_idx_l1_active_minus1; i++ )
         {
-            printf("%d.%d: ", b->p - b->start, b->bits_left); sh->pwt.luma_weight_l1_flag[i] = bs_read_u1(b); printf("sh->pwt.luma_weight_l1_flag[i]: %d \n", sh->pwt.luma_weight_l1_flag[i]); 
+            printf("%d.%d: ", b->p - b->start, b->bits_left); sh->pwt.luma_weight_l1_flag[i] = bs_read_u1(b); printf("sh->pwt.luma_weight_l1_flag[i]: %d \n", sh->pwt.luma_weight_l1_flag[i]);
             if( sh->pwt.luma_weight_l1_flag[i] )
             {
-                printf("%d.%d: ", b->p - b->start, b->bits_left); sh->pwt.luma_weight_l1[ i ] = bs_read_se(b); printf("sh->pwt.luma_weight_l1[ i ]: %d \n", sh->pwt.luma_weight_l1[ i ]); 
-                printf("%d.%d: ", b->p - b->start, b->bits_left); sh->pwt.luma_offset_l1[ i ] = bs_read_se(b); printf("sh->pwt.luma_offset_l1[ i ]: %d \n", sh->pwt.luma_offset_l1[ i ]); 
+                printf("%d.%d: ", b->p - b->start, b->bits_left); sh->pwt.luma_weight_l1[ i ] = bs_read_se(b); printf("sh->pwt.luma_weight_l1[ i ]: %d \n", sh->pwt.luma_weight_l1[ i ]);
+                printf("%d.%d: ", b->p - b->start, b->bits_left); sh->pwt.luma_offset_l1[ i ] = bs_read_se(b); printf("sh->pwt.luma_offset_l1[ i ]: %d \n", sh->pwt.luma_offset_l1[ i ]);
             }
             if( sps->chroma_format_idc != 0 )
             {
-                printf("%d.%d: ", b->p - b->start, b->bits_left); sh->pwt.chroma_weight_l1_flag[i] = bs_read_u1(b); printf("sh->pwt.chroma_weight_l1_flag[i]: %d \n", sh->pwt.chroma_weight_l1_flag[i]); 
+                printf("%d.%d: ", b->p - b->start, b->bits_left); sh->pwt.chroma_weight_l1_flag[i] = bs_read_u1(b); printf("sh->pwt.chroma_weight_l1_flag[i]: %d \n", sh->pwt.chroma_weight_l1_flag[i]);
                 if( sh->pwt.chroma_weight_l1_flag[i] )
                 {
                     for( j = 0; j < 2; j++ )
                     {
-                        printf("%d.%d: ", b->p - b->start, b->bits_left); sh->pwt.chroma_weight_l1[ i ][ j ] = bs_read_se(b); printf("sh->pwt.chroma_weight_l1[ i ][ j ]: %d \n", sh->pwt.chroma_weight_l1[ i ][ j ]); 
-                        printf("%d.%d: ", b->p - b->start, b->bits_left); sh->pwt.chroma_offset_l1[ i ][ j ] = bs_read_se(b); printf("sh->pwt.chroma_offset_l1[ i ][ j ]: %d \n", sh->pwt.chroma_offset_l1[ i ][ j ]); 
+                        printf("%d.%d: ", b->p - b->start, b->bits_left); sh->pwt.chroma_weight_l1[ i ][ j ] = bs_read_se(b); printf("sh->pwt.chroma_weight_l1[ i ][ j ]: %d \n", sh->pwt.chroma_weight_l1[ i ][ j ]);
+                        printf("%d.%d: ", b->p - b->start, b->bits_left); sh->pwt.chroma_offset_l1[ i ][ j ] = bs_read_se(b); printf("sh->pwt.chroma_offset_l1[ i ][ j ]: %d \n", sh->pwt.chroma_offset_l1[ i ][ j ]);
                     }
                 }
             }
@@ -2751,36 +2751,36 @@ void read_debug_dec_ref_pic_marking(h264_stream_t* h, bs_t* b)
 
     if( h->nal->nal_unit_type == 5 )
     {
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sh->drpm.no_output_of_prior_pics_flag = bs_read_u1(b); printf("sh->drpm.no_output_of_prior_pics_flag: %d \n", sh->drpm.no_output_of_prior_pics_flag); 
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sh->drpm.long_term_reference_flag = bs_read_u1(b); printf("sh->drpm.long_term_reference_flag: %d \n", sh->drpm.long_term_reference_flag); 
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sh->drpm.no_output_of_prior_pics_flag = bs_read_u1(b); printf("sh->drpm.no_output_of_prior_pics_flag: %d \n", sh->drpm.no_output_of_prior_pics_flag);
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sh->drpm.long_term_reference_flag = bs_read_u1(b); printf("sh->drpm.long_term_reference_flag: %d \n", sh->drpm.long_term_reference_flag);
     }
     else
     {
-        printf("%d.%d: ", b->p - b->start, b->bits_left); sh->drpm.adaptive_ref_pic_marking_mode_flag = bs_read_u1(b); printf("sh->drpm.adaptive_ref_pic_marking_mode_flag: %d \n", sh->drpm.adaptive_ref_pic_marking_mode_flag); 
+        printf("%d.%d: ", b->p - b->start, b->bits_left); sh->drpm.adaptive_ref_pic_marking_mode_flag = bs_read_u1(b); printf("sh->drpm.adaptive_ref_pic_marking_mode_flag: %d \n", sh->drpm.adaptive_ref_pic_marking_mode_flag);
         if( sh->drpm.adaptive_ref_pic_marking_mode_flag )
         {
             int n = -1;
             do
             {
                 n++;
-                printf("%d.%d: ", b->p - b->start, b->bits_left); sh->drpm.memory_management_control_operation[ n ] = bs_read_ue(b); printf("sh->drpm.memory_management_control_operation[ n ]: %d \n", sh->drpm.memory_management_control_operation[ n ]); 
+                printf("%d.%d: ", b->p - b->start, b->bits_left); sh->drpm.memory_management_control_operation[ n ] = bs_read_ue(b); printf("sh->drpm.memory_management_control_operation[ n ]: %d \n", sh->drpm.memory_management_control_operation[ n ]);
                 if( sh->drpm.memory_management_control_operation[ n ] == 1 ||
                     sh->drpm.memory_management_control_operation[ n ] == 3 )
                 {
-                    printf("%d.%d: ", b->p - b->start, b->bits_left); sh->drpm.difference_of_pic_nums_minus1[ n ] = bs_read_ue(b); printf("sh->drpm.difference_of_pic_nums_minus1[ n ]: %d \n", sh->drpm.difference_of_pic_nums_minus1[ n ]); 
+                    printf("%d.%d: ", b->p - b->start, b->bits_left); sh->drpm.difference_of_pic_nums_minus1[ n ] = bs_read_ue(b); printf("sh->drpm.difference_of_pic_nums_minus1[ n ]: %d \n", sh->drpm.difference_of_pic_nums_minus1[ n ]);
                 }
                 if(sh->drpm.memory_management_control_operation[ n ] == 2 )
                 {
-                    printf("%d.%d: ", b->p - b->start, b->bits_left); sh->drpm.long_term_pic_num[ n ] = bs_read_ue(b); printf("sh->drpm.long_term_pic_num[ n ]: %d \n", sh->drpm.long_term_pic_num[ n ]); 
+                    printf("%d.%d: ", b->p - b->start, b->bits_left); sh->drpm.long_term_pic_num[ n ] = bs_read_ue(b); printf("sh->drpm.long_term_pic_num[ n ]: %d \n", sh->drpm.long_term_pic_num[ n ]);
                 }
                 if( sh->drpm.memory_management_control_operation[ n ] == 3 ||
                     sh->drpm.memory_management_control_operation[ n ] == 6 )
                 {
-                    printf("%d.%d: ", b->p - b->start, b->bits_left); sh->drpm.long_term_frame_idx[ n ] = bs_read_ue(b); printf("sh->drpm.long_term_frame_idx[ n ]: %d \n", sh->drpm.long_term_frame_idx[ n ]); 
+                    printf("%d.%d: ", b->p - b->start, b->bits_left); sh->drpm.long_term_frame_idx[ n ] = bs_read_ue(b); printf("sh->drpm.long_term_frame_idx[ n ]: %d \n", sh->drpm.long_term_frame_idx[ n ]);
                 }
                 if( sh->drpm.memory_management_control_operation[ n ] == 4 )
                 {
-                    printf("%d.%d: ", b->p - b->start, b->bits_left); sh->drpm.max_long_term_frame_idx_plus1[ n ] = bs_read_ue(b); printf("sh->drpm.max_long_term_frame_idx_plus1[ n ]: %d \n", sh->drpm.max_long_term_frame_idx_plus1[ n ]); 
+                    printf("%d.%d: ", b->p - b->start, b->bits_left); sh->drpm.max_long_term_frame_idx_plus1[ n ] = bs_read_ue(b); printf("sh->drpm.max_long_term_frame_idx_plus1[ n ]: %d \n", sh->drpm.max_long_term_frame_idx_plus1[ n ]);
                 }
             } while( sh->drpm.memory_management_control_operation[ n ] != 0 && ! bs_eof(b) );
         }

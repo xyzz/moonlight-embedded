@@ -5,10 +5,10 @@ Please take a look at the [wiki](https://github.com/irtimmer/moonlight-embedded/
 
 If you still have questions about Moonlight Embedded, please use one of the different fora discussing Moonlight Embedded.
 
-[XDA](http://forum.xda-developers.com/showthread.php?t=2505510) Moonlight in General  
-[Raspberry Pi Forum](http://www.raspberrypi.org/forums/viewtopic.php?f=78&t=65878) Moonlight Embedded for Raspberry Pi  
-[SolidRun Community](http://www.solid-run.com/community/viewtopic.php?f=13&t=1489&p=11173) Moonlight Embedded for Cubox-i and Hummingboard  
-[ODROID Forum](http://forum.odroid.com/viewtopic.php?f=91&t=15456) Moonlight Embedded on ODROID  
+[XDA](http://forum.xda-developers.com/showthread.php?t=2505510) Moonlight in General
+[Raspberry Pi Forum](http://www.raspberrypi.org/forums/viewtopic.php?f=78&t=65878) Moonlight Embedded for Raspberry Pi
+[SolidRun Community](http://www.solid-run.com/community/viewtopic.php?f=13&t=1489&p=11173) Moonlight Embedded for Cubox-i and Hummingboard
+[ODROID Forum](http://forum.odroid.com/viewtopic.php?f=91&t=15456) Moonlight Embedded on ODROID
 
 ## Found an Issue?
 If you think you found a bug in Moonlight Embedded you can submit a issue. But please ensure first you have checked the following or otherwise we will mark the issue as invalid:

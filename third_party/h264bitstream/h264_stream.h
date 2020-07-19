@@ -1,20 +1,20 @@
-/* 
+/*
  * h264bitstream - a library for reading and writing H.264 video
  * Copyright (C) 2005-2007 Auroras Entertainment, LLC
  * Copyright (C) 2008-2011 Avail-TVN
- * 
+ *
  * Written by Alex Izvorski <aizvorski@gmail.com> and Alex Giladi <alex.giladi@gmail.com>
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -85,7 +85,7 @@ typedef struct
       int frame_crop_top_offset;
       int frame_crop_bottom_offset;
     int vui_parameters_present_flag;
-    
+
     struct
     {
         int aspect_ratio_info_present_flag;
@@ -146,7 +146,7 @@ typedef struct
    @see write_pic_parameter_set_rbsp
    @see debug_pps
 */
-typedef struct 
+typedef struct
 {
     int pic_parameter_set_id;
     int seq_parameter_set_id;
@@ -352,9 +352,9 @@ typedef struct
 
 /**
    H264 stream
-   Contains data structures for all NAL types that can be handled by this library.  
-   When reading, data is read into those, and when writing it is written from those.  
-   The reason why they are all contained in one place is that some of them depend on others, we need to 
+   Contains data structures for all NAL types that can be handled by this library.
+   When reading, data is read into those, and when writing it is written from those.
+   The reason why they are all contained in one place is that some of them depend on others, we need to
    have all of them available to read or write correctly.
  */
 typedef struct
@@ -363,7 +363,7 @@ typedef struct
     sps_t* sps;
     pps_t* pps;
     aud_t* aud;
-    sei_t* sei; //This is a TEMP pointer at whats in h->seis...    
+    sei_t* sei; //This is a TEMP pointer at whats in h->seis...
     int num_seis;
     slice_header_t* sh;
     slice_data_rbsp_t* slice_data;
@@ -471,7 +471,7 @@ void write_sei_payload( h264_stream_t* h, bs_t* b, int payloadType, int payloadS
                                              // 20..23    // Reserved
                                              // 24..31    // Unspecified
 
- 
+
 
 //7.4.3 Table 7-6. Name association to slice_type
 #define SH_SLICE_TYPE_P        0        // P (P slice)
