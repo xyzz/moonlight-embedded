@@ -24,6 +24,8 @@
 static gui_draw_callback gui_global_draw_callback;
 static gui_loop_callback gui_global_loop_callback;
 
+vita2d_font *font;
+
 menu_geom make_geom_centered(int w, int h) {
   menu_geom geom = {0};
   geom.x = WIDTH  / 2 - w / 2;
