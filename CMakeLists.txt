@@ -131,6 +131,7 @@ target_link_libraries(${PROJECT_NAME}.elf
 	-lScePower_stub
 	-lSceVideodec_stub
 	-lSceCommonDialog_stub
+	-lSceAppMgr_stub
 	-lSceAudio_stub
 	-lSceIme_stub
 
