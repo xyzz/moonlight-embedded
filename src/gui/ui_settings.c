@@ -410,9 +410,11 @@ enum {
   SETTINGS_VIEW_BACK_DEADZONE,
   SETTINGS_VIEW_SPECIAL_KEYS,
   SETTINGS_VIEW_MOUSE_ACCEL,
+
+  SETTINGS_VIEW_MAX_COUNT,
 };
 
-static int SETTINGS_VIEW_IDX[10];
+static int SETTINGS_VIEW_IDX[SETTINGS_VIEW_MAX_COUNT];
 
 // _countof only works for variable allocated on the stack, not from malloc (sizeof(i) will be incorrect).
 #define _countof(i) (sizeof(i) / sizeof((i)[0]))
