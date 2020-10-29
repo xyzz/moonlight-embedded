@@ -5,6 +5,7 @@
 
 #include "../config.h"
 #include "../input/vita.h"
+#include "../video/vita.h"
 
 #include <assert.h>
 #include <stdarg.h>
@@ -18,6 +19,7 @@
 #include <psp2/ctrl.h>
 #include <psp2/rtc.h>
 #include <psp2/touch.h>
+#include <psp2/videodec.h>
 #include <vita2d.h>
 #include <Limelight.h>
 
@@ -68,6 +70,25 @@ static char *settings_special_names[] = {"None",
   "I", "M", "Tab",
   "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12"
 };
+
+#define MAX_RESOLUTION 9
+static int RESOLUTIONS[MAX_RESOLUTION][2] = {
+  {960, 540},   // 16:9, QHD
+  {960, 544},   // VITA original
+  {1024, 576},  // 16:9
+  {1152, 648},  // 16:9
+  {1280, 540},  // 21:9
+  {1280, 720},  // 16:9, 720p HD
+  {1366, 768},  // 16:9, WXGA
+  {1600, 900},  // 16:9, 900p HD+
+  //{1720, 720},  // 21:9
+  {1920, 1080}, // 16:9, FHD
+  //{1920, 1200}, // 16:10
+};
+
+int support_resolution_idx[MAX_RESOLUTION] = {-1};
+char *support_resolutions[MAX_RESOLUTION] = {0};
+int support_resolution_count = 0;
 
 static bool settings_loop_setup = 1;
 
@@ -446,23 +467,42 @@ static int settings_loop(int id, void *context, const input_data *input) {
   char current[256];
   int new_idx;
 
+  if (!vitavideo_initialized() && !support_resolution_count) {
+    for (int i = 0; i < MAX_RESOLUTION; i++) {
+      SceVideodecQueryInitInfoHwAvcdec dec;
+      dec.size = sizeof(SceVideodecQueryInitInfoHwAvcdec);
+      dec.horizontal = VITA_DECODER_RESOLUTION(RESOLUTIONS[i][0]);
+      dec.vertical = VITA_DECODER_RESOLUTION(RESOLUTIONS[i][1]);
+      dec.numOfRefFrames = 5;
+      dec.numOfStreams = 1;
+      int ret = sceVideodecInitLibrary(SCE_VIDEODEC_TYPE_HW_AVCDEC, &dec);
+      sceVideodecTermLibrary(SCE_VIDEODEC_TYPE_HW_AVCDEC);
+      if (ret < 0) {
+        // unsupported resolution
+        continue;
+      }
+      support_resolutions[support_resolution_count] = calloc(10, sizeof(char));
+      snprintf(support_resolutions[support_resolution_count], 10, "%dx%d", RESOLUTIONS[i][0], RESOLUTIONS[i][1]);
+      vita_debug_log("res: %d\n", support_resolution_count);
+      vita_debug_log("%s\n", support_resolutions[support_resolution_count]);
+      support_resolution_idx[support_resolution_count++] = i;
+    }
+  }
+
   switch (id) {
     case SETTINGS_RESOLUTION:
       if (!left && !right) {
-          break;
+        break;
       }
-      char *resolutions[] = {"960x540", "960x544", "1280x540", "1280x720", "1920x1080"};
+      if (vitavideo_initialized()) {
+        break;
+      }
+      //char *resolutions[] = {"960x540", "960x544", "1280x540", "1280x720", "1920x1080"};
       sprintf(current, "%dx%d", config.stream.width, config.stream.height);
 
-      new_idx = _move_idx_in_array(resolutions, current, left ? -1 : +1);
-
-      switch (new_idx) {
-        case 0: config.stream.width = 960; config.stream.height = 540; break;
-        case 1: config.stream.width = 960; config.stream.height = 544; break;
-        case 2: config.stream.width = 1280; config.stream.height = 540; break;
-        case 3: config.stream.width = 1280; config.stream.height = 720; break;
-        case 4: config.stream.width = 1920; config.stream.height = 1080; break;
-      }
+      new_idx = move_idx_in_array(support_resolutions, support_resolution_count, current, left ? -1 : +1);
+      config.stream.width = RESOLUTIONS[support_resolution_idx[new_idx]][0];
+      config.stream.height = RESOLUTIONS[support_resolution_idx[new_idx]][1];
 
       did_change = 1;
       break;

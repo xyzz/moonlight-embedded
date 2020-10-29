@@ -21,6 +21,7 @@
 #include "../config.h"
 #include "../debug.h"
 #include "../gui/guilib.h"
+#include "vita.h"
 #include "sps.h"
 
 #include <Limelight.h>
@@ -34,7 +35,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
 
 #include <stdarg.h>
 
@@ -117,14 +117,6 @@ typedef struct {
 } image_scaling_settings;
 
 static image_scaling_settings image_scaling = {0};
-
-// Vita's sceVideodecInitLibrary only accept resolution that is multiple of 16 on either dimension,
-// and the smallest resolution is 64
-// Full supported resolution list can be found at:
-// https://github.com/MakiseKurisu/vita-sceVideodecInitLibrary-test/
-#define ROUND_NEAREST_16(x)                     (round(((double) (x)) / 16) * 16)
-#define VITA_DECODER_RESOLUTION_LOWER_BOUND(x)  ((x) < 64 ? 64 : (x))
-#define VITA_DECODER_RESOLUTION(x)              (VITA_DECODER_RESOLUTION_LOWER_BOUND(ROUND_NEAREST_16(x)))
 
 void update_scaling_settings(int width, int height) {
   image_scaling.texture_width = SCREEN_WIDTH;
@@ -561,6 +553,10 @@ void vitavideo_show_poor_net_indicator() {
 void vitavideo_hide_poor_net_indicator() {
   //poor_net_indicator.activated = false;
   memset(&poor_net_indicator, 0, sizeof(indicator_status));
+}
+
+int vitavideo_initialized() {
+  return video_status != NOT_INIT;
 }
 
 DECODER_RENDERER_CALLBACKS decoder_callbacks_vita = {
