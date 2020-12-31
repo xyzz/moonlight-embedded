@@ -1,4 +1,6 @@
 ## Unreleased
+
+## 0.9.0
 * Expose local audio setting to the end user (#173)
 * Remember the currently connected address (7998108)
 * Add a 21:9 resolution (1280x540) to Settings (f1eb931)

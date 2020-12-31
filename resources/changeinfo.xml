@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <changeinfo>
+<changes app_ver="00.09"><![CDATA[
+## 0.9.0<br>
+* Expose local audio setting to the end user (#173)<br>
+* Remember the currently connected address (7998108)<br>
+* Add a 21:9 resolution (1280x540) to Settings (f1eb931)<br>
+* Properly display stream in the correct display ratio, and place in the middle of the screen (14e3a2c)<br>
+* Since GFE will add blackbars to the stream even when a non-16:9 monitor is using 16:9 resolution,<br>
+there is another option to use along the 21:9 resolution to only display the center 16:9 region (5b7a2cc)<br>
+* Detect supported resolutions (#193)<br>
+* Add new option to enable/disable of the vita vblank waiting (#197)<br>
+]]></changes>
 <changes app_ver="00.08"><![CDATA[
 ## 0.8.0<br>
 * Add new option for swapping O/X buttons (#168)<br>
