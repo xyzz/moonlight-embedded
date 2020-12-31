@@ -1,4 +1,11 @@
 ## Unreleased
+* Expose local audio setting to the end user (#173)
+* Remember the currently connected address (7998108)
+* Add a 21:9 resolution (1280x540) to Settings (f1eb931)
+* Properly display stream in the correct display ratio, and place in the middle of the screen (14e3a2c)
+* Since GFE will add blackbars to the stream even when a non-16:9 monitor is using 16:9 resolution,
+    there is another option to use along the 21:9 resolution to only display the center 16:9 region (5b7a2cc)
+* Detect supported resolutions (#193)
 
 ## 0.8.0
 * Add new option for swapping O/X buttons (#168)
