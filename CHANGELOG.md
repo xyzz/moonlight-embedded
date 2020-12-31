@@ -6,6 +6,7 @@
 * Since GFE will add blackbars to the stream even when a non-16:9 monitor is using 16:9 resolution,
     there is another option to use along the 21:9 resolution to only display the center 16:9 region (5b7a2cc)
 * Detect supported resolutions (#193)
+* Add new option to enable/disable of the vita vblank waiting (#197)
 
 ## 0.8.0
 * Add new option for swapping O/X buttons (#168)
