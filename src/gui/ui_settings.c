@@ -400,6 +400,7 @@ enum {
   SETTINGS_SOPS,
   SETTINGS_ENABLE_FRAME_INVAL,
   SETTINGS_ENABLE_STREAM_OPTIMIZE,
+  SETTINGS_ENABLE_VITA_VBLANK_WAIT,
   SETTINGS_SAVE_DEBUG_LOG,
   SETTINGS_DISABLE_POWERSAVE,
   SETTINGS_JP_LAYOUT,
@@ -420,6 +421,7 @@ enum {
   SETTINGS_VIEW_SOPS,
   SETTINGS_VIEW_ENABLE_FRAME_INVAL,
   SETTINGS_VIEW_ENABLE_STREAM_OPTIMIZE,
+  SETTINGS_VIEW_ENABLE_VITA_VBLANK_WAIT,
   SETTINGS_VIEW_SAVE_DEBUG_LOG,
   SETTINGS_VIEW_DISABLE_POWERSAVE,
   SETTINGS_VIEW_JP_LAYOUT,
@@ -558,6 +560,13 @@ static int settings_loop(int id, void *context, const input_data *input) {
       did_change = 1;
       config.stream.streamingRemotely = config.stream.streamingRemotely ? 0 : 1;
       break;
+    case SETTINGS_ENABLE_VITA_VBLANK_WAIT:
+      if ((input->buttons & config.btn_confirm) == 0 || input->buttons & SCE_CTRL_HOLD) {
+        break;
+      }
+      did_change = 1;
+      config.enable_vita_vblank_wait = config.enable_vita_vblank_wait ? 0 : 1;
+      break;
     case SETTINGS_SAVE_DEBUG_LOG:
       if ((input->buttons & config.btn_confirm) == 0 || input->buttons & SCE_CTRL_HOLD) {
         break;
@@ -681,6 +690,9 @@ static int settings_loop(int id, void *context, const input_data *input) {
   sprintf(current, "%s", config.stream.streamingRemotely ? "yes" : "no");
   MENU_REPLACE(SETTINGS_VIEW_ENABLE_STREAM_OPTIMIZE, current);
 
+  sprintf(current, "%s", config.enable_vita_vblank_wait ? "yes" : "no");
+  MENU_REPLACE(SETTINGS_VIEW_ENABLE_VITA_VBLANK_WAIT, current);
+
   sprintf(current, "%s", config.disable_powersave ? "yes" : "no");
   MENU_REPLACE(SETTINGS_VIEW_DISABLE_POWERSAVE, current);
 
@@ -750,6 +762,7 @@ int ui_settings_menu() {
   MENU_ENTRY(SETTINGS_SOPS, SETTINGS_VIEW_SOPS, "Change graphical game settings for performance", "");
   MENU_ENTRY(SETTINGS_ENABLE_FRAME_INVAL, SETTINGS_VIEW_ENABLE_FRAME_INVAL, "Enable reference frame invalidation", "");
   MENU_ENTRY(SETTINGS_ENABLE_STREAM_OPTIMIZE, SETTINGS_VIEW_ENABLE_STREAM_OPTIMIZE, "Enable stream optimization", "");
+  MENU_ENTRY(SETTINGS_ENABLE_VITA_VBLANK_WAIT, SETTINGS_VIEW_ENABLE_VITA_VBLANK_WAIT, "Enable VITA vblank", "");
   MENU_ENTRY(SETTINGS_ENABLE_FRAME_PACER, SETTINGS_VIEW_ENABLE_FRAME_PACER, "Enable frame pacer", "");
   MENU_ENTRY(SETTINGS_LOCAL_AUDIO, SETTINGS_VIEW_LOCAL_AUDIO, "Enable local audio", "");
 
