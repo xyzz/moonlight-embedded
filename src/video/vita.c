@@ -538,7 +538,7 @@ void draw_indicators() {
 
 void vitavideo_start() {
   active_video_thread = true;
-  vita2d_set_vblank_wait(false);
+  vita2d_set_vblank_wait(config.enable_vita_vblank_wait);
 }
 
 void vitavideo_stop() {

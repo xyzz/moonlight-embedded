@@ -69,6 +69,7 @@ typedef struct _CONFIGURATION {
   int inputsCount;
   int mouse_acceleration;
   bool enable_ref_frame_invalidation;
+  bool enable_vita_vblank_wait;
   FILE *log_file;
   // runtime configuration, value will be recreated at launch
   SceCtrlButtons btn_confirm;

@@ -116,6 +116,8 @@ static int ini_handle(void *out, const char *section, const char *name,
       config->enable_ref_frame_invalidation = BOOL(value);
     } else if (strcmp(name, "enable_remote_stream_optimization") == 0) {
       config->stream.streamingRemotely = INT(value);
+    } else if (strcmp(name, "enable_vita_vblank_wait") == 0) {
+      config->enable_vita_vblank_wait = BOOL(value);
     }
   }
 }
@@ -165,6 +167,7 @@ void config_save(const char* filename, PCONFIGURATION config) {
   write_config_int(fd, "mouse_acceleration", config->mouse_acceleration);
   write_config_bool(fd, "enable_ref_frame_invalidation", config->enable_ref_frame_invalidation);
   write_config_int(fd, "enable_remote_stream_optimization", config->stream.streamingRemotely);
+  write_config_bool(fd, "enable_vita_vblank_wait", config->enable_vita_vblank_wait);
 
   write_config_section(fd, "backtouchscreen_deadzone");
   write_config_int(fd, "top",     config->back_deadzone.top);
@@ -230,6 +233,7 @@ void config_parse(int argc, char* argv[], PCONFIGURATION config) {
 
   config->mouse_acceleration = 150;
   config->enable_ref_frame_invalidation = false;
+  config->enable_vita_vblank_wait = false;
 
   config->inputsCount = 0;
   config->mapping = NULL;
