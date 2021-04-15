@@ -1,4 +1,5 @@
 ## Unreleased
+* Support GFE 3.22 (2452e98)
 
 ## 0.9.0
 * Expose local audio setting to the end user (#173)
