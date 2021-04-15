@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <changeinfo>
 <changes app_ver="00.09"><![CDATA[
+## 0.9.1<br>
+* Support GFE 3.22 (2452e98)<br>
+<br>
 ## 0.9.0<br>
 * Expose local audio setting to the end user (#173)<br>
 * Remember the currently connected address (7998108)<br>
